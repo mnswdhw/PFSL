@@ -126,7 +126,7 @@ if __name__ == "__main__":
     if args.disable_wandb:
         mode = "disabled"
         
-    wandb.init(entity="iitbhilai", project="Split_learning_exps_vidhi", mode = mode)
+    wandb.init(entity="iitbhilai", project="Split_learning_exps", mode = mode)
     wandb.run.name = args.opt_iden
 
     config = wandb.config          
