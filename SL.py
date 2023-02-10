@@ -411,8 +411,7 @@ def evaluate_server(fx_client, y, idx, len_batch, ell):
                 curr_f1=(clr[str(idx)]['f1-score']+clr[str((idx+1)%10)]['f1-score'])/2
                 macro_avg_f1_3classes.append(curr_f1)
                 macro_avg_f1_dict[idx]=curr_f1
-                if(ell==0):
-                    print(classification_report(np.array(targets), np.array(outputs)))
+                
                 targets=[]
                 outputs=[]
                 
@@ -760,6 +759,3 @@ if __name__ == "__main__":
     #                         Program Completed
     #============================================================================= 
 
-    #=============================================================================
-    #                         Program Completed
-    #============================================================================= 

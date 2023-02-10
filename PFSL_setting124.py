@@ -18,11 +18,6 @@ import matplotlib.pyplot as plt
 import time
 import multiprocessing
 from sklearn.metrics import classification_report
-# from opacus import PrivacyEngine
-# from opacus.accountants import RDPAccountant
-# from opacus import GradSampleModule
-# from opacus.optimizers import DPOptimizer
-# from opacus.validators import ModuleValidator
 import torch.optim as optim 
 import copy
 from datetime import datetime
@@ -36,8 +31,9 @@ import pandas as pd
 import time 
 from utils import dataset_settings, datasets
 import torch.nn.functional as F
-#                                       Clients Side Program
-#==============================================================================================================
+
+
+#To load train and test data for each client for setting 1 and setting 2
 class DatasetSplit(Dataset):
     def __init__(self, dataset, idxs):
         self.dataset = dataset
@@ -51,26 +47,15 @@ class DatasetSplit(Dataset):
         return image, label
 
 
+#To intialize every client with their train and test data for setting 4
 def initialize_client(client, dataset, batch_size, test_batch_size, tranform):
-    client.load_data(args.dataset, transform)
+    
+    client.load_data(dataset, transform)
     print(f'Length of train dataset client {client.id}: {len(client.train_dataset)}')
     client.create_DataLoader(batch_size, test_batch_size)
 
 
-def select_random_clients(clients):
-    random_clients = {}
-    client_ids = list(clients.keys())
-    random_index = random.randint(0,len(client_ids)-1)
-    random_client_ids = client_ids[random_index]
-
-    print(random_client_ids)
-    print(clients)
-
-    for random_client_id in random_client_ids:
-        random_clients[random_client_id] = clients[random_client_id]
-    return random_clients
-
-
+#Plots class distribution of train data available to each client
 def plot_class_distribution(clients, dataset, batch_size, epochs, opt, client_ids):
     class_distribution=dict()
     number_of_clients=len(client_ids)
@@ -113,12 +98,16 @@ def plot_class_distribution(clients, dataset, batch_size, epochs, opt, client_id
     
     return class_distribution
 
+
+
 if __name__ == "__main__":    
 
     
     args = parse_arguments()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Arguments provided", args)
+
+    #setup for wandb
 
     mode = "online"
     if args.disable_wandb:
@@ -149,14 +138,14 @@ if __name__ == "__main__":
     client_ids = list(clients.keys())    
     print('Done')
 
-    train_dataset_size, input_channels = split_dataset_cifar10tl_exp(client_ids, args.datapoints)
+    train_dataset_size, input_channels = split_dataset(args.dataset, client_ids, pretrained=args.pretrained)
 
     print(f'Random client ids:{str(client_ids)}')
     transform=None
     max_epoch=0
     max_f1=0
 
-
+    #Assigning train and test data to each client depending for each client
     print('Initializing clients...')
     
     if(args.setting=="setting4"):
@@ -170,71 +159,44 @@ if __name__ == "__main__":
 
         dict_users_test_equal=dataset_settings.get_test_dict(test_full_dataset, args.number_of_clients)
 
-        i=0
+        client_idx=0
         dict_user_train=dict()
         dict_user_test=dict()
         client_idxs=dict()
 
         for _, client in clients.items():
-            dict_user_train[_]=dict_users[i]
-            dict_user_test[_]=dict_users2[i]
-            client_idxs[_]=i
-            i+=1
+            dict_user_train[_]=dict_users[client_idx]
+            dict_user_test[_]=dict_users2[client_idx]
+            client_idxs[_]=client_idx
+            client_idx+=1
         for _, client in clients.items():
             client.train_dataset=DatasetSplit(train_full_dataset, dict_user_train[_])
             client.test_dataset=DatasetSplit(test_full_dataset, dict_user_test[_])
             client.create_DataLoader(args.batch_size, args.test_batch_size)
+    print('Client Intialization complete.')    
+    # Train and test data intialisation complete
 
+    #Setting the start of personalisation phase
     if(args.setting!='setting2'):
         args.checkpoint=args.epochs+10
 
     
-
-    
     # class_distribution=plot_class_distribution(clients, args.dataset, args.batch_size, args.epochs, args.opt_iden, client_ids)
-    print('Client Intialization complete.')
-    model = importlib.import_module(f'models.{args.model}')
 
+
+    #Assigning front, center and back models and their optimizers for all the clients
+    model = importlib.import_module(f'models.{args.model}')
+  
     for _, client in clients.items():
         client.front_model = model.front(input_channels, pretrained=args.pretrained)
         client.back_model = model.back(pretrained=args.pretrained)
     print('Done')
-
-    if args.sst:
-        dummy_client_id = client_ids[0]
-        client_ids = client_ids[1:]
-        dummy_client = clients[dummy_client_id]
-        clients.pop(dummy_client_id)
-
-
-    if not args.disable_dp:
-        print("DP enabled")
-        for _, client in clients.items():
-            client.front_privacy_engine = PrivacyEngine()
-
+  
     for _, client in clients.items():
-
         # client.front_optimizer = optim.SGD(client.front_model.parameters(), lr=args.lr, momentum=0.9)
         # client.back_optimizer = optim.SGD(client.back_model.parameters(), lr=args.lr, momentum=0.9)
         client.front_optimizer = optim.Adam(client.front_model.parameters(), lr=args.lr)
         client.back_optimizer = optim.Adam(client.back_model.parameters(), lr=args.lr)
-
-    if args.sst:
-        dummy_client.front_optimizer = optim.Adam(client.front_model.parameters(), lr=args.lr)
-        dummy_client.back_optimizer = optim.Adam(client.back_model.parameters(), lr=args.lr)
-
-
-    if not args.disable_dp:
-        for _, client in clients.items():
-            client.front_model, client.front_optimizer, client.train_DataLoader = \
-                client.front_privacy_engine.make_private(
-                module=client.front_model,
-                data_loader=client.train_DataLoader,
-                noise_multiplier=args.sigma,
-                max_grad_norm=args.max_per_sample_grad_norm,
-                optimizer=client.front_optimizer,
-            )
-
 
     first_client = clients[client_ids[0]]
     num_iterations = ceil(len(first_client.train_DataLoader.dataset)/args.batch_size)
@@ -251,39 +213,37 @@ if __name__ == "__main__":
         # s_client.center_optimizer = optim.SGD(s_client.center_model.parameters(), lr=args.lr, momentum=0.9)
         s_client.center_optimizer = optim.Adam(s_client.center_model.parameters(), args.lr)
 
-    if args.sst:
-        dummy_client_sc = ConnectedClient(dummy_client_id, None)
-        dummy_client_sc.center_model = model.center(pretrained=args.pretrained)
-        dummy_client_sc.center_model.to(device)
-        # dummy_client_sc.center_optimizer = optim.SGD(dummy_client_sc.center_model.parameters(), lr=args.lr, momentum=0.9)
-        dummy_client_sc.center_optimizer = optim.Adam(dummy_client_sc.center_model.parameters(), args.lr)
-         
-
     st = time.time()
 
-    macro_avg_f1_3classes=[]
+    macro_avg_f1_2classes=[]
 
     criterion=F.cross_entropy
+
+    #logging the gradients of the models of all the three parts to wandb
     for _, client in clients.items(): 
         wandb.watch(client.front_model, criterion, log="all",log_freq=2) 
         wandb.watch(client.back_model, criterion, log="all", log_freq=2)
     for _, s_client in sc_clients.items():
         wandb.watch(s_client.center_model, criterion, log="all", log_freq=2)
 
+    #Starting the training process 
     for epoch in range(args.epochs):
-        if(epoch==args.checkpoint):
+        if(epoch==args.checkpoint): # When starting epoch of the perosnalisation is reached, freeze all the layers of the center model 
             for _, s_client in sc_clients.items():
                 s_client.center_model.freeze(epoch, pretrained=True)
 
         overall_train_acc.append(0)
+
+
         for _, client in clients.items():
             client.train_acc.append(0)
             client.iterator = iter(client.train_DataLoader)
             
-            
+        #For every batch in the current epoch
         for iteration in range(num_iterations):
             print(f'\rEpoch: {epoch+1}, Iteration: {iteration+1}/{num_iterations}', end='')
 
+            
             for _, client in clients.items():
                 client.forward_front()
 
@@ -304,10 +264,6 @@ if __name__ == "__main__":
             for client_id, client in sc_clients.items():
                 client.remote_activations2 = clients[client_id].remote_activations2
                 client.backward_center()
-                
-            # for client_id, client in clients.items():
-            #     client.remote_activations1 = copy.deepcopy(sc_clients[client_id].remote_activations1)
-            #     client.backward_front()
 
             for _, client in clients.items():
                 client.step_back()
@@ -328,13 +284,13 @@ if __name__ == "__main__":
                 client.center_optimizer.zero_grad()
 
             for _, client in clients.items():
-                client.train_acc[-1] += client.calculate_train_acc()
+                client.train_acc[-1] += client.calculate_train_acc() #train accuracy of every client in the current epoch in the current batch
 
         for c_id, client in clients.items():
-            client.train_acc[-1] /= num_iterations
-            overall_train_acc[-1] += client.train_acc[-1]
+            client.train_acc[-1] /= num_iterations # train accuracy of every client of all the batches in the current epoch
+            overall_train_acc[-1] += client.train_acc[-1] 
 
-        overall_train_acc[-1] /= len(clients)
+        overall_train_acc[-1] /= len(clients) #avg train accuracy of all the clients in the current epoch
         print(f' Personalized Average Train Acc: {overall_train_acc[-1]}')
 
         # merge weights below uncomment 
@@ -347,54 +303,18 @@ if __name__ == "__main__":
             client.center_model.load_state_dict(w_glob)
 
         params = []
+
+        #In the personalisation phase merging of weights of the back layers is stopped
         if(epoch <=args.checkpoint):
             for _, client in clients.items():
                 params.append(copy.deepcopy(client.back_model.state_dict()))
             w_glob_cb = merge_weights(params)
+            del params
     
             for _, client in clients.items():
                 client.back_model.load_state_dict(w_glob_cb)
 
-
-        if not args.disable_dp:
-            for _, client in clients.items():
-                front_epsilon, front_best_alpha = client.front_privacy_engine.accountant.get_privacy_spent(delta=args.delta)
-                client.front_epsilons.append(front_epsilon)
-                client.front_best_alphas.append(front_best_alpha)
-                print(f"([{client.id}] ε = {front_epsilon:.2f}, δ = {args.delta}) for α = {front_best_alpha}")
-
-
-        if args.sst:
-            dummy_client.iterator = iter(dummy_client.train_DataLoader)
-
-            for iteration in range(num_iterations):
-                print(f'\r[Server side tuning] Epoch: {epoch+1}, Iteration: {iteration+1}/{num_iterations}', end='')
-                dummy_client.forward_front()
-                dummy_client_sc.remote_activations1 = dummy_client.remote_activations1
-                dummy_client_sc.forward_center()
-                dummy_client.remote_activations2 = dummy_client_sc.remote_activations2
-                dummy_client.forward_back() 
-                dummy_client.calculate_loss()
-                dummy_client.backward_back()
-                dummy_client_sc.remote_activations2.grad = dummy_client.remote_activations2.grad
-                dummy_client_sc.backward_center()
-                dummy_client.remote_activations1.grad = dummy_client_sc.remote_activations1.grad
-                dummy_client.backward_front()
-                dummy_client.step()
-                dummy_client.zero_grad()
-                dummy_client_sc.center_optimizer.step()
-                dummy_client_sc.center_optimizer.zero_grad()
-        
-
-
-            # train_acc = 0
-            # # average out accuracy of all random_clients
-            # for _, client in random_clients.items():
-            #     train_acc += client.train_acc[-1]
-            # train_acc = train_acc/args.number_of_clients
-            # overall_acc.append(train_acc)
-
-        # Testing on every 5th epoch
+        #Testing every epoch
         if (epoch%1 == 0 ):
             if(epoch==args.checkpoint):
                 for _, s_client in sc_clients.items():
@@ -402,12 +322,14 @@ if __name__ == "__main__":
             with torch.no_grad():
                 test_acc = 0
                 overall_test_acc.append(0)
-                # for 
+            
                 for _, client in clients.items():
                     client.test_acc.append(0)
                     client.iterator = iter(client.test_DataLoader)
                     client.pred=[]
                     client.y=[]
+
+                #For every batch in the testing phase
                 for iteration in range(num_test_iterations):
     
                     for _, client in clients.items():
@@ -424,26 +346,26 @@ if __name__ == "__main__":
                     for _, client in clients.items():
                         client.test_acc[-1] += client.calculate_test_acc()
 
+
                 for _, client in clients.items():
                     client.test_acc[-1] /= num_test_iterations
                     overall_test_acc[-1] += client.test_acc[-1]
+                    #Calculating the F1 scores using the classification report from sklearn metrics
                     if(args.setting=='setting2'):
                         clr=classification_report(np.array(client.y), np.array(client.pred), output_dict=True)
-
-                        # macro_avg_f1_3classes+=clr[]
                         idx=client_idxs[_]
 
-                        macro_avg_f1_3classes.append((clr[str(idx)]['f1-score']+clr[str((idx+1)%10)]['f1-score'])/2)
-                        if(epoch==args.checkpoint):
-                            print("client ", idx)
-                            print(classification_report(np.array(client.y), np.array(client.pred)))
-                            print(macro_avg_f1_3classes)
+                        macro_avg_f1_2classes.append((clr[str(idx)]['f1-score']+clr[str((idx+1)%10)]['f1-score'])/2) #macro f1 score of the 2 prominent classes in setting2
+                        
                 
-                overall_test_acc[-1] /= len(clients)
-                if(args.setting=='2'):
-                    f1_avg_all_user=sum(macro_avg_f1_3classes)/len(macro_avg_f1_3classes)
-                    macro_avg_f1_3classes=[]
+                overall_test_acc[-1] /= len(clients) #average test accuracy of all the clients in the current epoch
+
+                if(args.setting=='setting2'):
+                    f1_avg_all_user=sum(macro_avg_f1_2classes)/len(macro_avg_f1_2classes) #average f1 scores of the clients for the prominent 2 classes in the current epoch
+                    macro_avg_f1_2classes=[]
                     print(f' Personalized Average Test Acc: {overall_test_acc[-1]}  f1 score: {f1_avg_all_user} ')
+
+                    #Noting the maximum f1 score
                     if(f1_avg_all_user> max_f1):
                         max_f1=f1_avg_all_user
                         max_epoch=epoch
@@ -453,7 +375,6 @@ if __name__ == "__main__":
         
             wandb.log({
                 "Epoch": epoch,
-              
                 "Personalized Average Train Accuracy": overall_train_acc[-1],
                 "Personalized Average Test Accuracy": overall_test_acc[-1],  
             })
@@ -462,13 +383,14 @@ if __name__ == "__main__":
     plot_config = f'''dataset: {args.dataset},
                     model: {args.model},
                     batch_size: {args.batch_size}, lr: {args.lr},
-                    server side tuning: {args.sst},
-                    sigma: {args.sigma}, delta: {args.delta}'''
+                    '''
 
     et = time.time()
     print(f"Time taken for this run {(et - st)/60} mins")
     wandb.log({"time taken by program in mins": (et - st)/60})
 
+
+    # calculating the train and test standarad deviation and teh confidence intervals 
     X = range(args.epochs)
     all_clients_stacked_train = np.array([client.train_acc for _,client in clients.items()])
     all_clients_stacked_test = np.array([client.test_acc for _,client in clients.items()])
@@ -515,50 +437,3 @@ if __name__ == "__main__":
     wandb.log({"test_cv": wandb.Image(plt)})
 
 
-
-    
-    
-    #BELOW CODE TO PLOT MULTIPLE LINES ON A SINGLE PLOT ONE LINE FOR EACH CLIENT
-    # for client_id, client in clients.items():
-    #     plt.plot(list(range(args.epochs)), client.train_acc, label=f'{client_id} (Max:{max(client.train_acc):.4f})')
-    # plt.plot(list(range(args.epochs)), overall_train_acc, label=f'Average (Max:{max(overall_train_acc):.4f})')
-    # plt.title(f'{args.number_of_clients} Clients: Train Accuracy vs. Epochs')
-    # plt.ylabel('Train Accuracy')
-    # plt.xlabel('Epochs')
-    # plt.legend()
-    # plt.ioff()
-    # plt.savefig(f'./results/train_acc_vs_epoch/{args.dataset}_{args.number_of_clients}clients_{args.epochs}epochs_{args.batch_size}batch_{args.opt}.png', bbox_inches='tight')
-    # plt.show()
-
-    # for client_id, client in clients.items():
-    #     plt.plot(list(range(args.epochs)), client.test_acc, label=f'{client_id} (Max:{max(client.test_acc):.4f})')
-    # plt.plot(list(range(args.epochs)), overall_test_acc, label=f'Average (Max:{max(overall_test_acc):.4f})')
-    # plt.title(f'{args.number_of_clients} Clients: Test Accuracy vs. Epochs')
-    # plt.ylabel('Test Accuracy')
-    # plt.xlabel('Epochs')
-    # plt.legend()
-    # plt.ioff()
-    # plt.savefig(f'./results/test_acc_vs_epoch/{args.dataset}_{args.number_of_clients}clients_{args.epochs}epochs_{args.batch_size}batch_{args.opt}.png', bbox_inches='tight')
-    # plt.show()
-
-    if not args.disable_dp:
-
-        X_ = first_client.front_epsilons
-        Y_ = overall_test_acc
-        X_Y_Spline = make_interp_spline(X_, Y_)
-        X_ = np.linspace(min(X_), max(X_), 100)
-        Y_ = X_Y_Spline(X_)
-        ci = 0.5*np.std(Y_)/np.sqrt(len(X_))
-        plt.fill_between(X_, (Y_-ci), (Y_+ci), color='blue', alpha=0.5)
-        print(ci)
-        plt.plot(X_, Y_)
-        plt.title(f'{args.number_of_clients} Accuracy vs. Epsilon')
-        plt.ylabel('Average Test Acc.')
-        plt.xlabel('Epsilon')
-        plt.legend()
-        plt.ioff()
-        plt.figtext(0.45, -0.06, plot_config, ha="center", va="center", fontsize=10)
-        plt.savefig(f'./results/acc_vs_epsilon/{timestamp}.png', bbox_inches='tight')
-        plt.close()
-
-    

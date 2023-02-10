@@ -44,7 +44,7 @@ Below we state the commands for running PFSL, SL, FL, SFLv1 and SFLv2 for all th
 <p> To run all the algorithms for setting 1 argument –-setting setting1 and –-datapoints [number of sample per client] has to be added. 
 Rest of the arguments can be selected as per choice.
 
-* `python PFSL_setting124.py  -–dataset [dataset] –-setting [setting] –datapoints[number of data samples] --pretrained --model resnet18 -c 10`
+* `python PFSL_Setting124.py  -–dataset [dataset] –-setting [setting] –datapoints[number of data samples] --pretrained --model resnet18 -c 10`
 * `python FL.py --dataset [dataset] --setting setting1 --datapoints [number of data samples] -c 10`
 * `python SL.py --dataset [dataset] --setting setting1 --datapoints [number of data samples] -c 10`
 * `python SFLv1.py --dataset [dataset] --setting setting1 --datapoints [number of data samples] -c 10`
@@ -60,7 +60,7 @@ has to be added. For PFSL, to enable personalisation phase
 from xth epoch, argument --checkpoint [x] has to be added.
 Rest of the arguments can be selected as per choice.
 
-* `python PFSL_setting124.py --dataset [dataset] --setting setting2 --pretrained --model resnet18 -c 10`
+* `python PFSL_Setting124.py --dataset [dataset] --setting setting2 --pretrained --model resnet18 -c 10`
 * `python FL.py --dataset [dataset] --setting setting2 -c 10`
 * `python SL.py --dataset [dataset] --setting setting2 -c 10`
 * `python SFLv1.py --dataset [dataset] --setting setting2 -c 10`
@@ -71,11 +71,11 @@ Rest of the arguments can be selected as per choice.
   <details><summary><b>Setting 3: Small Sample Size (Unequal), i.i.d.</b></summary>
 <p>
 
-* `python PFSL_setting3.py --dataset [dataset] --pretrained --model resnet18 -c 10`
-* `python FL_setting3.py --dataset [dataset]  -c 10`
+* `python PFSL_Setting3.py --dataset [dataset] --pretrained --model resnet18 -c 10`
+* `python FL_Setting3.py --dataset [dataset]  -c 10`
 * `python SL_Setting3.py --dataset [dataset]  -c 10`
-* `python SFLv1_setting3.py --dataset [dataset]  -c 10`
-* `python SFLv2_setting3.py --dataset [dataset]  -c 10`
+* `python SFLv1_Setting3.py --dataset [dataset]  -c 10`
+* `python SFLv2_Setting3.py --dataset [dataset]  -c 10`
   
   </p></details>
 
@@ -90,7 +90,7 @@ Rest of the arguments can be selected as per choice.
 <p> To run all the algorithms for setting 4 argument --setting setting4 has
 to be added. Rest of the arguments can be selected as per choice.
 
-* `python PFSL_setting124.py –disable dp --dataset[dataset] --setting setting4 --pretrained --model resnet18 -c 5`
+* `python PFSL_Setting124.py –disable dp --dataset[dataset] --setting setting4 --pretrained --model resnet18 -c 5`
 * `python FL.py --dataset [dataset] --setting setting4 -c 5`
 * `python SL.py --dataset [dataset] --setting setting4 -c 5`
 * `python SFLv1.py --dataset [dataset] --setting setting4 -c 5`

@@ -16,12 +16,7 @@ def parse_arguments():
         metavar="C",
         help="Number of Clients",
     )
-    parser.add_argument(
-        "--sst",
-        # action=argparse.BooleanOptionalAction,
-        action = "store_true",
-        help="State if server side tuning needs to be done",
-    )
+    
     parser.add_argument(
         "-b",
         "--batch_size",
@@ -52,47 +47,8 @@ def parse_arguments():
         metavar="LR",
         help="Learning rate",
     )
-    parser.add_argument(
-        "--sigma",
-        type=float,
-        default=1.0,
-        metavar="S",
-        help="Noise multiplier",
-    )
-    parser.add_argument(
-        "--server_sigma",
-        type=float,
-        default=0,
-        metavar="SS",
-        help="Noise multiplier for central layers",
-    )
-    parser.add_argument(
-        "-g",
-        "--max_per_sample_grad_norm",
-        type=float,
-        default=1.0,
-        metavar="G",
-        help="Clip per-sample gradients to this norm",
-    )
-    parser.add_argument(
-        "--delta",
-        type=float,
-        default=1e-5,
-        metavar="D",
-        help="Target delta",
-    )
-    parser.add_argument(        # needs to be implemented
-        "--save_model",
-        action="store_true",
-        default=False,
-        help="Save the trained model",
-    )
-    parser.add_argument(
-        "--disable_dp",
-        action="store_true",
-        default=False,
-        help="Disable privacy training and just train with vanilla SGD",
-    )
+    
+    
     parser.add_argument(
         "--dataset",
         type=str,
