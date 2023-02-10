@@ -1,0 +1,110 @@
+Epoch: 1, Iteration: 157/157Test Acc: 42.294921875
+Epoch: 2, Iteration: 157/157Test Acc: 46.162109375
+Epoch: 3, Iteration: 157/157Test Acc: 56.806640625
+Epoch: 4, Iteration: 157/157Test Acc: 64.453125
+Epoch: 5, Iteration: 157/157Test Acc: 66.669921875
+Epoch: 6, Iteration: 157/157Test Acc: 65.48828125
+Epoch: 7, Iteration: 157/157Test Acc: 71.7578125
+Epoch: 8, Iteration: 157/157Test Acc: 69.9609375
+Epoch: 9, Iteration: 157/157Test Acc: 71.796875
+Epoch: 10, Iteration: 157/157Test Acc: 73.095703125
+Epoch: 11, Iteration: 157/157Test Acc: 69.814453125
+Epoch: 12, Iteration: 157/157Test Acc: 75.048828125
+Epoch: 13, Iteration: 157/157Test Acc: 76.19140625
+Epoch: 14, Iteration: 157/157Test Acc: 76.103515625
+Epoch: 15, Iteration: 157/157Test Acc: 76.201171875
+Epoch: 16, Iteration: 157/157Test Acc: 76.328125
+Epoch: 17, Iteration: 157/157Test Acc: 76.5625
+Epoch: 18, Iteration: 157/157Test Acc: 77.626953125
+Epoch: 19, Iteration: 157/157Test Acc: 77.48046875
+Epoch: 20, Iteration: 157/157Test Acc: 78.330078125
+Epoch: 21, Iteration: 157/157Test Acc: 78.69140625
+Epoch: 22, Iteration: 157/157Test Acc: 79.375
+Epoch: 23, Iteration: 157/157Test Acc: 79.794921875
+Epoch: 24, Iteration: 157/157Test Acc: 79.47265625
+Epoch: 25, Iteration: 157/157Test Acc: 81.162109375
+Epoch: 26, Iteration: 157/157Test Acc: 80.76171875
+Epoch: 27, Iteration: 157/157Test Acc: 80.390625
+Epoch: 28, Iteration: 157/157Test Acc: 81.240234375
+Epoch: 29, Iteration: 157/157Test Acc: 80.390625
+Epoch: 30, Iteration: 157/157Test Acc: 81.044921875
+Epoch: 31, Iteration: 157/157Test Acc: 79.111328125
+Epoch: 32, Iteration: 157/157Test Acc: 81.3671875
+Epoch: 33, Iteration: 157/157Test Acc: 80.400390625
+Epoch: 34, Iteration: 157/157Test Acc: 79.501953125
+Epoch: 35, Iteration: 157/157Test Acc: 80.60546875
+Epoch: 36, Iteration: 157/157Test Acc: 80.361328125
+Epoch: 37, Iteration: 157/157Test Acc: 71.58203125
+Epoch: 38, Iteration: 157/157Test Acc: 70.76171875
+Epoch: 39, Iteration: 157/157Test Acc: 75.15625
+Epoch: 40, Iteration: 157/157Test Acc: 77.44140625
+Epoch: 41, Iteration: 157/157Test Acc: 77.607421875
+Epoch: 42, Iteration: 157/157Test Acc: 79.443359375
+Epoch: 43, Iteration: 157/157Test Acc: 79.306640625
+Epoch: 44, Iteration: 157/157Test Acc: 80.029296875
+Epoch: 45, Iteration: 157/157Test Acc: 79.82421875
+Epoch: 46, Iteration: 157/157Test Acc: 78.3203125
+Epoch: 47, Iteration: 157/157Test Acc: 78.7890625
+Epoch: 48, Iteration: 157/157Test Acc: 78.759765625
+Epoch: 49, Iteration: 157/157Test Acc: 79.94140625
+Epoch: 50, Iteration: 157/157Test Acc: 80.52734375
+Epoch: 51, Iteration: 157/157Test Acc: 81.142578125
+Epoch: 52, Iteration: 157/157Test Acc: 81.298828125
+Epoch: 53, Iteration: 157/157Test Acc: 81.015625
+Epoch: 54, Iteration: 157/157Test Acc: 81.025390625
+Epoch: 55, Iteration: 157/157Test Acc: 81.3671875
+Epoch: 56, Iteration: 157/157Test Acc: 81.982421875
+Epoch: 57, Iteration: 157/157Test Acc: 81.533203125
+Epoch: 58, Iteration: 157/157Test Acc: 82.24609375
+Epoch: 59, Iteration: 157/157Test Acc: 81.8359375
+Epoch: 60, Iteration: 157/157Test Acc: 81.845703125
+Epoch: 61, Iteration: 157/157Test Acc: 81.42578125
+Epoch: 62, Iteration: 157/157Test Acc: 82.20703125
+Epoch: 63, Iteration: 157/157Test Acc: 81.7578125
+Epoch: 64, Iteration: 157/157Test Acc: 82.236328125
+Epoch: 65, Iteration: 157/157Test Acc: 81.34765625
+Epoch: 66, Iteration: 157/157Test Acc: 82.01171875
+Epoch: 67, Iteration: 157/157Test Acc: 82.59765625
+Epoch: 68, Iteration: 157/157Test Acc: 82.021484375
+Epoch: 69, Iteration: 157/157Test Acc: 82.666015625
+Epoch: 70, Iteration: 157/157Test Acc: 82.5390625
+Epoch: 71, Iteration: 157/157Test Acc: 82.958984375
+Epoch: 72, Iteration: 157/157Test Acc: 81.69921875
+Epoch: 73, Iteration: 157/157Test Acc: 80.390625
+Epoch: 74, Iteration: 157/157Test Acc: 81.865234375
+Epoch: 75, Iteration: 157/157Test Acc: 80.91796875
+Epoch: 76, Iteration: 157/157Test Acc: 82.314453125
+Epoch: 77, Iteration: 157/157Test Acc: 81.38671875
+Epoch: 78, Iteration: 157/157Test Acc: 82.177734375
+Epoch: 79, Iteration: 157/157Test Acc: 82.138671875
+Epoch: 80, Iteration: 157/157Test Acc: 78.49609375
+Epoch: 81, Iteration: 157/157Test Acc: 79.169921875
+Epoch: 82, Iteration: 157/157Test Acc: 80.712890625
+Epoch: 83, Iteration: 157/157Test Acc: 81.337890625
+Epoch: 84, Iteration: 157/157Test Acc: 81.904296875
+Epoch: 85, Iteration: 157/157Test Acc: 82.138671875
+Epoch: 86, Iteration: 157/157Test Acc: 82.0703125
+Epoch: 87, Iteration: 157/157Test Acc: 82.421875
+Epoch: 88, Iteration: 157/157Test Acc: 81.5625
+Epoch: 89, Iteration: 157/157Test Acc: 82.0703125
+Epoch: 90, Iteration: 157/157Test Acc: 82.421875
+Epoch: 91, Iteration: 157/157Test Acc: 82.51953125
+Epoch: 92, Iteration: 157/157Test Acc: 82.333984375
+Epoch: 93, Iteration: 157/157Test Acc: 82.841796875
+Epoch: 94, Iteration: 157/157Test Acc: 83.02734375
+Epoch: 95, Iteration: 157/157Test Acc: 82.3828125
+Epoch: 96, Iteration: 157/157Test Acc: 82.568359375
+Epoch: 97, Iteration: 157/157Test Acc: 82.099609375
+Epoch: 98, Iteration: 157/157Test Acc: 82.099609375
+Epoch: 99, Iteration: 157/157Test Acc: 82.20703125
+Epoch: 100, Iteration: 157/157Test Acc: 82.734375
+Client: eijq, Iteration: 32/32wnfo: 82.685546875
+kb5n: 83.544921875
+cpzx: 83.173828125
+bzi8: 83.095703125
+tlju: 82.841796875
+qea5: 83.10546875
+rvxg: 83.14453125
+5ua4: 82.890625
+sxv1: 83.525390625
+eijq: 83.18359375

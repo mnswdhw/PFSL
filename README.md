@@ -1,1 +1,136 @@
-# PFSL
+# priv_SLR
+
+
+## 1) Build requirements:
+* Python3 (>=3.8)
+* pip3
+* Nvidia GPU (>=12GB)
+
+## 2)Installation
+Use the following steps to install the required libraries:
+* Change Directory into the project folder
+* The use the command: `pip install -r requirements.txt`
+
+## 3) Test Run
+
+### Paramateres
+The parameters options for a particular file can be checked adding -–help argument.
+<br/>Optional arguments available for PFSL are:
+* -h, –help show this help message and exit
+* -c C, -–number of clients Number of Clients (default: 10)
+* -b B, -–batch_size Batch size (default: 128)
+* –-test_batch_size Input batch size for testing (default: 128)
+* -n , –-epochs Total number of epochs to train (default: 10)
+* –-lr Learning rate (default: 0.001)
+* -–save model Save the trained model (default: False)
+* –-dataset States dataset to be used (default: cifar10)
+* –-seed Random seed (default: 1234)
+* –-model Model you would like to train (default: resnet18)
+* –-epoch_batch Number of epochs after which next batchof clients should join (default: 5)
+* –-opt_iden optional identifier of experiment (default: )
+* –-disable_wandb Disable wandb logging (default: False)
+* –-pretrained Use transfer learning using a pretrained model (default: False)
+* –-datapoints Number of samples of training data allotted to each client (default: 500)
+* –-setting Setting you would like to run for, i.e, setting1 ,setting2 or setting4 (default: setting1)
+* –-checkpoint Epoch at which personalisation phase will start (default: 50)
+
+For reproducing the results, always add argument –-pretrained while running the PFSL script
+
+### Commands for all the scenarios
+
+Below we state the commands for running PFSL, SL, FL, SFLv1 and SFLv2 for all the experimental scenarios.
+
+<details> <summary><b>Setting 1: Small Sample Size (Equal), i.i.d.</b></summary>
+<p> To run all the algorithms for setting 1 argument –-setting setting1 and –-datapoints [number of sample per client] has to be added. 
+Rest of the arguments can be selected as per choice.
+
+* `python PFSL_setting124.py  -–dataset [dataset] –-setting [setting] –datapoints[number of data samples] --pretrained --model resnet18 -c 10`
+* `python FL.py --dataset [dataset] --setting setting1 --datapoints [number of data samples] -c 10`
+* `python SL.py --dataset [dataset] --setting setting1 --datapoints [number of data samples] -c 10`
+* `python SFLv1.py --dataset [dataset] --setting setting1 --datapoints [number of data samples] -c 10`
+* `python SFLv2.py --dataset [dataset] --setting setting1 --datapoints [number of data samples] -c 10`
+
+</p></details>
+
+
+
+<details><summary><b>Setting 2: Small Sample Size (Equal), non-i.i.d.</b></summary>
+<p>To run all the algorithms for setting 2 argument --setting setting2
+has to be added. For PFSL, to enable personalisation phase
+from xth epoch, argument --checkpoint [x] has to be added.
+Rest of the arguments can be selected as per choice.
+
+* `python PFSL_setting124.py --dataset [dataset] --setting setting2 --pretrained --model resnet18 -c 10`
+* `python FL.py --dataset [dataset] --setting setting2 -c 10`
+* `python SL.py --dataset [dataset] --setting setting2 -c 10`
+* `python SFLv1.py --dataset [dataset] --setting setting2 -c 10`
+* `python SFLv2.py --dataset [dataset] --setting setting2 -c 10`
+  
+  </p></details>
+  
+  <details><summary><b>Setting 3: Small Sample Size (Unequal), i.i.d.</b></summary>
+<p>
+
+* `python PFSL_setting3.py --dataset [dataset] --pretrained --model resnet18 -c 10`
+* `python FL_setting3.py --dataset [dataset]  -c 10`
+* `python SL_Setting3.py --dataset [dataset]  -c 10`
+* `python SFLv1_setting3.py --dataset [dataset]  -c 10`
+* `python SFLv2_setting3.py --dataset [dataset]  -c 10`
+  
+  </p></details>
+
+
+
+
+
+
+
+<details>
+ <summary><b>Setting 4: A large number of data samples</b></summary>
+<p> To run all the algorithms for setting 4 argument --setting setting4 has
+to be added. Rest of the arguments can be selected as per choice.
+
+* `python PFSL_setting124.py –disable dp --dataset[dataset] --setting setting4 --pretrained --model resnet18 -c 5`
+* `python FL.py --dataset [dataset] --setting setting4 -c 5`
+* `python SL.py --dataset [dataset] --setting setting4 -c 5`
+* `python SFLv1.py --dataset [dataset] --setting setting4 -c 5`
+* `python SFLv2.py --dataset [dataset] --setting setting4 -c 5` 
+</p>
+</details>
+
+
+<details>
+ <summary><b> Setting 5: System simulation with 1000 client</b></summary>
+<p> 
+</p>
+</details>
+  
+             
+     
+
+
+<details>
+ <summary><b>Setting 6: Different Diabetic Retinopathy Datasets:</b></summary>
+<p> For Data preprocessing, run the commands mentioned below
+for both the datasets <br/>
+<br/>`python utils/preprocess_eye_dataset_1.py`
+<br/>`python utils/preprocess_eye_dataset 2.py`
+
+
+<b> Dataset Sources:</b>
+* Source of Dataset 1, https://www.kaggle.com/competitions/aptos2019-blindness-detection/data
+* Source of Dataset 2, https://www.kaggle.com/datasets/mariaherrerot/eyepacspreprocess
+
+To preprocess the dataset download and store the unzipped files in data/eye_dataset1 folder and data/eye_dataset2 folder.
+
+* `python PFSL_DR.py --pretrained --model resnet18 -c 10`
+* `python FL_DR.py -c 10`
+* `python SL_DR.py -c 10`
+* `python SFLv1_DR.py -c 10`
+* `python SFLv2_DR.py -c 10`
+</p>
+</details>
+
+
+
+
