@@ -79,11 +79,11 @@ distribution of classes as the train set.
 
 To reproduce this results, run the following commands. In all the commands argument --datapoints that denotes the number of datapoints of the large client has to be added.In our case it was 2000.
 
-* `python PFSL_setting3.py --datapoints 2000 --dataset [dataset] --pretrained --model resnet18 -c 11`
-* `python FL_setting3.py --datapoints 2000 --dataset [dataset]  -c 11`
+* `python PFSL_Setting3.py --datapoints 2000 --dataset [dataset] --pretrained --model resnet18 -c 11`
+* `python FL_Setting3.py --datapoints 2000 --dataset [dataset]  -c 11`
 * `python SL_Setting3.py  --datapoints 2000 --dataset [dataset]  -c 11`
-* `python SFLv1_setting3.py --datapoints 2000 --dataset [dataset]  -c 11`
-* `python SFLv2_setting3.py --datapoints 2000 --dataset [dataset]  -c 11`
+* `python SFLv1_Setting3.py --datapoints 2000 --dataset [dataset]  -c 11`
+* `python SFLv2_Setting3.py --datapoints 2000 --dataset [dataset]  -c 11`
   
  </p>
  </details>
