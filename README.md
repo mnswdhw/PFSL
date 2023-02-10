@@ -66,23 +66,27 @@ Rest of the arguments can be selected as per choice.
 * `python SFLv1.py --dataset [dataset] --setting setting2 -c 10`
 * `python SFLv2.py --dataset [dataset] --setting setting2 -c 10`
   
-  </p></details>
+</p>
+</details>
   
-  <details><summary><b>Setting 3: Small Sample Size (Unequal), i.i.d.</b></summary>
-<p>
+<details><summary><b>Setting 3: Small Sample Size (Unequal), i.i.d.</b></summary>
+<p> In this settingwe consider we there 11 clients where the Large client has 2000 labelled data points
+while the other ten small clients have 150 labelled data points,
+each distributed identically. The class distributions
+among all the clients are the same. For evaluation purposes,
+we consider a test set having 2000 data points with an identical
+distribution of classes as the train set. 
 
-* `python PFSL_setting3.py --dataset [dataset] --pretrained --model resnet18 -c 10`
-* `python FL_setting3.py --dataset [dataset]  -c 10`
-* `python SL_Setting3.py --dataset [dataset]  -c 10`
-* `python SFLv1_setting3.py --dataset [dataset]  -c 10`
-* `python SFLv2_setting3.py --dataset [dataset]  -c 10`
+To reproduce this results, run the following commands. In all the commands argument --datapoints that denotes the number of datapoints of the large client has to be added.In our case it was 2000.
+
+* `python PFSL_setting3.py --datapoints 2000 --dataset [dataset] --pretrained --model resnet18 -c 11`
+* `python FL_setting3.py --datapoints 2000 --dataset [dataset]  -c 11`
+* `python SL_Setting3.py  --datapoints 2000 --dataset [dataset]  -c 11`
+* `python SFLv1_setting3.py --datapoints 2000 --dataset [dataset]  -c 11`
+* `python SFLv2_setting3.py --datapoints 2000 --dataset [dataset]  -c 11`
   
-  </p></details>
-
-
-
-
-
+ </p>
+ </details>
 
 
 <details>
