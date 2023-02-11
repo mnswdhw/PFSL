@@ -34,10 +34,7 @@ The parameters options for a particular file can be checked adding -–help argu
 * –-setting Setting you would like to run for, i.e, setting1 ,setting2 or setting4 (default: setting1)
 * –-checkpoint Epoch at which personalisation phase will start (default: 50)
 
-For reproducing the results, always add argument –-pretrained while running the PFSL script. For logging the results wandb had been used, so  to log the results to wandb, where wandb.init() is used, entity and project have to be specified according to the project folder where you wish to log the results. 
-<br\>
-
-Create a results directory in the project folder to store all the resulting plots. 
+For reproducing the results, always add argument –-pretrained while running the PFSL script. For logging the results wandb had been used, so  to log the results to wandb, where wandb.init() is used, entity and project have to be specified according to the project folder where you wish to log the results. Create a results directory in the project folder to store all the resulting plots. 
 
 ### Commands for all the scenarios
 
