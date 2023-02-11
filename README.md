@@ -17,8 +17,8 @@ Use the following steps to install the required libraries:
 The parameters options for a particular file can be checked adding -–help argument.
 <br/>Optional arguments available for PFSL are:
 * -h, –help show this help message and exit
-* -c C, -–number of clients Number of Clients (default: 10)
-* -b B, -–batch_size Batch size (default: 128)
+* -c, -–number of clients Number of Clients (default: 10)
+* -b, -–batch_size Batch size (default: 128)
 * –-test_batch_size Input batch size for testing (default: 128)
 * -n , –-epochs Total number of epochs to train (default: 10)
 * –-lr Learning rate (default: 0.001)
@@ -34,14 +34,17 @@ The parameters options for a particular file can be checked adding -–help argu
 * –-setting Setting you would like to run for, i.e, setting1 ,setting2 or setting4 (default: setting1)
 * –-checkpoint Epoch at which personalisation phase will start (default: 50)
 
-For reproducing the results, always add argument –-pretrained while running the PFSL script
+For reproducing the results, always add argument –-pretrained while running the PFSL script. For logging the results wandb had been used, so  to log the results to wandb, where wandb.init() is used, entity and project have to be specified according to the project folder where you wish to log the results. 
+<br\>
+
+Create a results directory in the project folder to store all the resulting plots. 
 
 ### Commands for all the scenarios
 
 Below we state the commands for running PFSL, SL, FL, SFLv1 and SFLv2 for all the experimental scenarios.
 
 <details> <summary><b>Setting 1: Small Sample Size (Equal), i.i.d.</b></summary>
-<p> To run all the algorithms for setting 1 argument –-setting setting1 and –-datapoints [number of sample per client] has to be added. 
+<p> In this scenario, each client has a very small number of labelled data points ranging from 50 to 500, and all these samples are distributed identically across clients. There is no class imbalance in training data of each client. To run all the algorithms for setting 1 argument –-setting setting1 and –-datapoints [number of sample per client] has to be added. 
 Rest of the arguments can be selected as per choice.
 
 * `python PFSL_Setting124.py  -–dataset [dataset] –-setting [setting] –datapoints[number of data samples] --pretrained --model resnet18 -c 10`
@@ -55,8 +58,8 @@ Rest of the arguments can be selected as per choice.
 
 
 <details><summary><b>Setting 2: Small Sample Size (Equal), non-i.i.d.</b></summary>
-<p>To run all the algorithms for setting 2 argument --setting setting2
-has to be added. For PFSL, to enable personalisation phase
+<p>In this setting, we model a situation where every client has more labelled data points from a subset of classes (prominent
+classes) and less from the remaining classes. We chose to experiment with heavy label imbalance and diversity. Sample size is small and each client has equal number of training samples. To run all the algorithms for setting 2 argument --setting setting2 has to be added. For PFSL, to enable personalisation phase
 from xth epoch, argument --checkpoint [x] has to be added.
 Rest of the arguments can be selected as per choice.
 
@@ -91,7 +94,8 @@ To reproduce this results, run the following commands. In all the commands argum
 
 <details>
  <summary><b>Setting 4: A large number of data samples</b></summary>
-<p> To run all the algorithms for setting 4 argument --setting setting4 has
+<p> Here, all clients have large number of samples. This experiment was done with three different image classification datasets:
+MNIST, FMNIST, and CIFAR-10. To run all the algorithms for setting 4 argument --setting setting4 has
 to be added. Rest of the arguments can be selected as per choice.
 
 * `python PFSL_Setting124.py –disable dp --dataset[dataset] --setting setting4 --pretrained --model resnet18 -c 5`
@@ -120,7 +124,8 @@ simulate a dropout, where clients begin training but are not able to complete th
 
 <details>
  <summary><b>Setting 6: Different Diabetic Retinopathy Datasets:</b></summary>
-<p> 
+<p> This experiment describes the realistic scenario when healthcare centers have different sets of raw patient data for the
+same disease. We have used two datasets EyePACS and APTOS whose references are given below.
 
 
 <b> Dataset Sources:</b>

@@ -15,13 +15,7 @@ from utils.connections import send_object
 from utils.arg_parser import parse_arguments
 import matplotlib.pyplot as plt
 import time
-import server
 import multiprocessing
-# from opacus import PrivacyEngine
-# from opacus.accountants import RDPAccountant
-# from opacus import GradSampleModule
-# from opacus.optimizers import DPOptimizer
-# from opacus.validators import ModuleValidator
 import torch.optim as optim 
 import copy
 from datetime import datetime
@@ -313,18 +307,6 @@ if __name__ == "__main__":
         client.back_model = model.back(pretrained=args.pretrained)
     print('Done')
 
-    if args.sst:
-        dummy_client_id = client_ids[0]
-        client_ids = client_ids[1:]
-        dummy_client = clients[dummy_client_id]
-        clients.pop(dummy_client_id)
-
-
-    if not args.disable_dp:
-        print("DP enabled")
-        for _, client in clients.items():
-            client.front_privacy_engine = PrivacyEngine()
-
     for _, client in clients.items():
 
         # client.front_optimizer = optim.SGD(client.front_model.parameters(), lr=args.lr, momentum=0.9)
@@ -332,23 +314,7 @@ if __name__ == "__main__":
         client.front_optimizer = optim.Adam(client.front_model.parameters(), lr=args.lr)
         client.back_optimizer = optim.Adam(client.back_model.parameters(), lr=args.lr)
 
-    if args.sst:
-        dummy_client.front_optimizer = optim.Adam(client.front_model.parameters(), lr=args.lr)
-        dummy_client.back_optimizer = optim.Adam(client.back_model.parameters(), lr=args.lr)
-
-
-    if not args.disable_dp:
-        for _, client in clients.items():
-            client.front_model, client.front_optimizer, client.train_DataLoader = \
-                client.front_privacy_engine.make_private(
-                module=client.front_model,
-                data_loader=client.train_DataLoader,
-                noise_multiplier=args.sigma,
-                max_grad_norm=args.max_per_sample_grad_norm,
-                optimizer=client.front_optimizer,
-            )
-
-
+   
     sample_client = clients[client_ids[0]]
     #number of iterations will be (di)/b.
     num_iterations = ceil(50 // args.batch_size)
@@ -372,14 +338,6 @@ if __name__ == "__main__":
         s_client.center_model.to(device)
         # s_client.center_optimizer = optim.SGD(s_client.center_model.parameters(), lr=args.lr, momentum=0.9)
         s_client.center_optimizer = optim.Adam(s_client.center_model.parameters(), args.lr)
-
-    if args.sst:
-        dummy_client_sc = ConnectedClient(dummy_client_id, None)
-        dummy_client_sc.center_model = model.center(pretrained=args.pretrained)
-        dummy_client_sc.center_model.to(device)
-        # dummy_client_sc.center_optimizer = optim.SGD(dummy_client_sc.center_model.parameters(), lr=args.lr, momentum=0.9)
-        dummy_client_sc.center_optimizer = optim.Adam(dummy_client_sc.center_model.parameters(), args.lr)
-         
 
     st = time.time()
 
@@ -446,40 +404,10 @@ if __name__ == "__main__":
 
         for _, client in clients.items():
             client.back_model.load_state_dict(w_glob_cb)
-
-
-        if not args.disable_dp:
-            for _, client in clients.items():
-                front_epsilon, front_best_alpha = client.front_privacy_engine.accountant.get_privacy_spent(delta=args.delta)
-                client.front_epsilons.append(front_epsilon)
-                client.front_best_alphas.append(front_best_alpha)
-                print(f"([{client.id}] ε = {front_epsilon:.2f}, δ = {args.delta}) for α = {front_best_alpha}")
-
-
-        if args.sst:
-            dummy_client.iterator = iter(dummy_client.train_DataLoader)
-
-            for iteration in range(num_iterations):
-                print(f'\r[Server side tuning] Epoch: {epoch+1}, Iteration: {iteration+1}/{num_iterations}', end='')
-                dummy_client.forward_front()
-                dummy_client_sc.remote_activations1 = dummy_client.remote_activations1
-                dummy_client_sc.forward_center()
-                dummy_client.remote_activations2 = dummy_client_sc.remote_activations2
-                dummy_client.forward_back() 
-                dummy_client.calculate_loss()
-                dummy_client.backward_back()
-                dummy_client_sc.remote_activations2.grad = dummy_client.remote_activations2.grad
-                dummy_client_sc.backward_center()
-                dummy_client.remote_activations1.grad = dummy_client_sc.remote_activations1.grad
-                dummy_client.backward_front()
-                dummy_client.step()
-                dummy_client.zero_grad()
-                dummy_client_sc.center_optimizer.step()
-                dummy_client_sc.center_optimizer.zero_grad()
         
 
-        # Testing on every 5th epoch
-        if epoch%5 == 0:
+       
+        if epoch%1 == 0:
             with torch.no_grad():
                 test_acc = 0
                 overall_test_acc.append(0)
@@ -514,8 +442,7 @@ if __name__ == "__main__":
     plot_config = f'''dataset: {args.dataset},
                     model: {args.model},
                     batch_size: {args.batch_size}, lr: {args.lr},
-                    server side tuning: {args.sst},
-                    sigma: {args.sigma}, delta: {args.delta}'''
+                    '''
 
     et = time.time()
     print(f"Time taken for this run {(et - st)/60} mins")
@@ -590,28 +517,7 @@ if __name__ == "__main__":
     # plt.ioff()
     # plt.savefig(f'./results/test_acc_vs_epoch/{args.dataset}_{args.number_of_clients}clients_{args.epochs}epochs_{args.batch_size}batch_{args.opt}.png', bbox_inches='tight')
     # plt.show()
-
-    if not args.disable_dp:
-
-        X_ = first_client.front_epsilons
-        Y_ = overall_test_acc
-        X_Y_Spline = make_interp_spline(X_, Y_)
-        X_ = np.linspace(min(X_), max(X_), 100)
-        Y_ = X_Y_Spline(X_)
-        ci = 0.5*np.std(Y_)/np.sqrt(len(X_))
-        plt.fill_between(X_, (Y_-ci), (Y_+ci), color='blue', alpha=0.5)
-        print(ci)
-        plt.plot(X_, Y_)
-        plt.title(f'{args.number_of_clients} Accuracy vs. Epsilon')
-        plt.ylabel('Average Test Acc.')
-        plt.xlabel('Epsilon')
-        plt.legend()
-        plt.ioff()
-        plt.figtext(0.45, -0.06, plot_config, ha="center", va="center", fontsize=10)
-        plt.savefig(f'./results/acc_vs_epsilon/{timestamp}.png', bbox_inches='tight')
-        plt.close()
-
-
+    
     with torch.no_grad():
         random_clients_overall_acc = {}
         for random_client_id in clients:
