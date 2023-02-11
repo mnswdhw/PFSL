@@ -421,7 +421,6 @@ if __name__ == "__main__":
     plt.plot(X, Y_test)
     plt.fill_between(X,Y_test_lower , Y_test_upper, color='blue', alpha=0.25)
     # plt.savefig(f'./results/test_acc_vs_epoch/{args.dataset}_{args.number_of_clients}clients_{args.epochs}epochs_{args.batch_size}batch_{args.opt}.png', bbox_inches='tight')
-    plt.savefig('confidence_plot2')
     plt.show()
     wandb.log({"test_plot": wandb.Image(plt)})
 
@@ -433,7 +432,6 @@ if __name__ == "__main__":
     plt.figure(3)
     plt.plot(X, Y_test_cv)
     plt.show()
-    plt.savefig('confidence_plot.png')
     wandb.log({"test_cv": wandb.Image(plt)})
 
 
