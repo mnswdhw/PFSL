@@ -1,26 +1,25 @@
 # PFSL
 
+## 1) Credits 
 
-## 1) Build requirements:
+To reproduce the results of the paper `Thapa, C., Chamikara, M. A., Camtepe, S., & Sun, L. (2020). SplitFed: When Federated Learning Meets Split Learning. ArXiv. https://doi.org/10.48550/arXiv.2004.12088`, we use their official source code which can be found here: https://github.com/chandra2thapa/SplitFed-When-Federated-Learning-Meets-Split-Learning
+
+For finding the FLOPs of our Pytorch split model at the client side, we use the profiler: https://github.com/Lyken17/pytorch-OpCounter
+
+
+
+
+## 2) Build requirements:
 * Python3 (>=3.8)
 * pip3
 * Nvidia GPU (>=12GB)
 
-## 2)Installation
+## 3)Installation
 Use the following steps to install the required libraries:
 * Change Directory into the project folder
-* Create a conda environment using the command 
-`conda create --name {env_name}`
-Eg- `conda create --name pfsl`
-* Activate conda environment using the command
-`conda activate {env_name}`
-Eg- `conda activate pfsl`
 * The use the command: `pip install -r requirements.txt`
 
-
-
-## 3) Test Run
-
+## 4) Test Run
 
 ### Paramateres
 The parameters options for a particular file can be checked adding -–help argument.
