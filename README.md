@@ -9,9 +9,18 @@
 ## 2)Installation
 Use the following steps to install the required libraries:
 * Change Directory into the project folder
+* Create a conda environment using the command 
+`conda create --name {env_name}`
+Eg- `conda create --name pfsl`
+* Activate conda environment using the command
+`conda activate {env_name}`
+Eg- `conda activate pfsl`
 * The use the command: `pip install -r requirements.txt`
 
+
+
 ## 3) Test Run
+
 
 ### Paramateres
 The parameters options for a particular file can be checked adding -–help argument.
