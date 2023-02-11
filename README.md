@@ -1,25 +1,34 @@
 # PFSL
 
-## 1) Credits 
+## 1) Please cite as below if you use this repository:
+`@software{Manas_Wadhwa_and_Gagan_Gupta_and_Ashutosh_Sahu_and_Rahul_Saini_and_Vidhi_Mittal_PFSL_2023,
+author = {Manas Wadhwa and Gagan Gupta and Ashutosh Sahu and Rahul Saini and Vidhi Mittal},
+month = {2},
+title = {{PFSL}},
+url = {https://github.com/mnswdhw/PFSL},
+version = {1.0.0},
+year = {2023}
+}`
+
+
+## 2) Credits 
 
 To reproduce the results of the paper `Thapa, C., Chamikara, M. A., Camtepe, S., & Sun, L. (2020). SplitFed: When Federated Learning Meets Split Learning. ArXiv. https://doi.org/10.48550/arXiv.2004.12088`, we use their official source code which can be found here: https://github.com/chandra2thapa/SplitFed-When-Federated-Learning-Meets-Split-Learning
 
 For finding the FLOPs of our Pytorch split model at the client side, we use the profiler: https://github.com/Lyken17/pytorch-OpCounter
 
 
-
-
-## 2) Build requirements:
+## 3) Build requirements:
 * Python3 (>=3.8)
 * pip3
 * Nvidia GPU (>=12GB)
 
-## 3)Installation
+## 4)Installation
 Use the following steps to install the required libraries:
 * Change Directory into the project folder
 * The use the command: `pip install -r requirements.txt`
 
-## 4) Test Run
+## 5) Test Run
 
 ### Paramateres
 The parameters options for a particular file can be checked adding -–help argument.
