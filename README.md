@@ -120,17 +120,19 @@ simulate a dropout, where clients begin training but are not able to complete th
 
 <details>
  <summary><b>Setting 6: Different Diabetic Retinopathy Datasets:</b></summary>
-<p> For Data preprocessing, run the commands mentioned below
-for both the datasets <br/>
-<br/>`python utils/preprocess_eye_dataset_1.py`
-<br/>`python utils/preprocess_eye_dataset 2.py`
+<p> 
 
 
 <b> Dataset Sources:</b>
 * Source of Dataset 1, https://www.kaggle.com/competitions/aptos2019-blindness-detection/data
 * Source of Dataset 2, https://www.kaggle.com/datasets/mariaherrerot/eyepacspreprocess
 
-To preprocess the dataset download and store the unzipped files in data/eye_dataset1 folder and data/eye_dataset2 folder.
+To preprocess the dataset download and store the unzipped files in data/eye_dataset1 folder and data/eye_dataset2 folder. Once verify the directory paths of the unzipped folders in the preprocess_eye_dataset_1.py and preprocess_eye_dataset_2.py files.
+
+For Data preprocessing, run the commands mentioned below
+for both the datasets <br/>
+`python utils/preprocess_eye_dataset_1.py`  <br/>
+`python utils/preprocess_eye_dataset 2.py`
 
 * `python PFSL_DR.py --pretrained --model resnet18 -c 10`
 * `python FL_DR.py -c 10`
