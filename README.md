@@ -26,6 +26,12 @@ For finding the FLOPs of our Pytorch split model at the client side, we use the 
 ## 4)Installation
 Use the following steps to install the required libraries:
 * Change Directory into the project folder
+* Create a conda environment using the command 
+`conda create --name {env_name}`
+Eg- `conda create --name pfsl`
+* Activate conda environment using the command 
+`conda activate {env_name}`
+Eg- `conda activate pfsl`
 * The use the command: `pip install -r requirements.txt`
 
 ## 5) Test Run
