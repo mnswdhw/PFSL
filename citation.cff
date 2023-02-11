@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- given-names: "Manas Wadhwa"
+  email-id: manasw@iitbhilai.ac.in
+- given-names: "Gagan Gupta"
+  email-id: gagan@iitbhilai.ac.in
+- given-names: "Ashutosh Sahu"
+  email-id: ashutoshsahu@iitbhilai.ac.in
+- given-names: "Rahul Saini"
+  email-id: rahuls@iitbhilai.ac.in
+- given-names: "Vidhi Mittal"
+  email-id: vidhimittal@iitbhilai.ac.in
+  
+title: "PFSL"
+version: 1.0.0
+doi: 
+date-released: 2023-02-11
+url: "https://github.com/mnswdhw/PFSL"
