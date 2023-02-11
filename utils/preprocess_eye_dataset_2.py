@@ -1,6 +1,5 @@
-import numpy as np # linear algebra
-import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
-# Necessary utility modules and libraries
+import numpy as np 
+import pandas as pd 
 import os
 import shutil
 import pathlib
@@ -12,33 +11,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import pickle
-# from scipy.signal import gaussian, convolve2d
-# import seaborn as sns
-
-# Libraries for building the model
-# import tensorflow as tf
-# import tensorflow_hub as hub
-# from tensorflow import keras
-# from tensorflow.keras.preprocessing.image import ImageDataGenerator
-# from tensorflow.keras.layers import Input, Dense, Conv2D, Flatten, MaxPool2D, Dropout, Activation, GlobalAveragePooling2D, BatchNormalization, GlobalMaxPooling2D
-# from tensorflow.keras.applications import DenseNet121, ResNet50, InceptionV3, Xception, VGG16
-# from tensorflow.keras.models import Sequential
-# from tensorflow.keras import backend
-# from tensorflow.keras.regularizers import l2, l1
 from sklearn.metrics import classification_report, precision_recall_fscore_support, accuracy_score, confusion_matrix
 from tqdm import tqdm
 
-dir_path='data/eye_dataset2/eyepacs_preprocess'
-df_temp = pd.read_csv("data/eye_dataset2/train_eyepacs.csv")
+dir_path='data/eye_dataset2/eyepacs_preprocess/eyepacs_preprocess'
+df_temp = pd.read_csv("data/eye_dataset2/trainLabels.csv")
 print(len(df_temp))
 df_temp['level'].value_counts()
 
 
 def load_data():
-      train = pd.read_csv("data/eye_dataset2/train_eyepacs.csv")
+      train = pd.read_csv("data/eye_dataset2/trainLabels.csv")
     #   test = pd.read_csv('data/test.csv')
 
-      train_dir = os.path.join('data/eye_dataset2/eyepacs_preprocess')
+      train_dir = os.path.join('data/eye_dataset2/eyepacs_preprocess/eyepacs_preprocess')
     #   test_dir = os.path.join('data/test_images')
 
       train['file_path'] = train['image'].map(lambda x: os.path.join(train_dir,'{}.jpeg'.format(x)))
