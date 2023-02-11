@@ -518,41 +518,4 @@ if __name__ == "__main__":
     # plt.savefig(f'./results/test_acc_vs_epoch/{args.dataset}_{args.number_of_clients}clients_{args.epochs}epochs_{args.batch_size}batch_{args.opt}.png', bbox_inches='tight')
     # plt.show()
     
-    with torch.no_grad():
-        random_clients_overall_acc = {}
-        for random_client_id in clients:
-
-            random_client = clients[random_client_id]
-            src = sc_clients[random_client_id]
-            random_client_overall_acc = 0
-            random_client.test_acc = []
-
-            
-            for _, client in clients.items():
-
-                random_client.test_DataLoader = client.test_DataLoader
-                random_client.iterator = iter(random_client.test_DataLoader)
-                num_test_iterations = ceil(len(random_client.test_DataLoader.dataset)/args.batch_size)
-                random_client.test_acc.append(0)
-                for iteration in range(num_test_iterations):
-
-                    print(f'\rClient: {client.id}, Iteration: {iteration+1}/{num_test_iterations}', end='')
-
-                    random_client.forward_front()
-
-                    src.remote_activations1 = random_client.remote_activations1
-                    src.forward_center()
-
-                    random_client.remote_activations2 = src.remote_activations2
-                    random_client.forward_back()
-
-                    random_client.test_acc[-1] += random_client.calculate_test_acc()
-
-                random_client.test_acc[-1] /= num_test_iterations
-                random_client_overall_acc += random_client.test_acc[-1]
-
-            random_client_overall_acc /= len(clients)
-            random_clients_overall_acc[random_client_id] = random_client_overall_acc
-
-    for client_id in random_clients_overall_acc:
-        print(f'Generalized {client_id} Test Accuracy: {random_clients_overall_acc[client_id]}')
+    
