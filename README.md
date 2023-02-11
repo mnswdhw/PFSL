@@ -113,7 +113,7 @@ to be added. Rest of the arguments can be selected as per choice.
 Thus, we evaluate our system for the worst possible scenario when every client cannot stay in the system for long and can only afford to make a minimal effort to participate. We assume that each client has 50 labeled data points sampled randomly but unique to the client. Within each round, we
 simulate a dropout, where clients begin training but are not able to complete the weight averaging. We keep the dropout probability at 50%. 
 
-* `python system_simulation_e2.py -c 10 --batch_size 16 --disable_dp --dataset cifar10 --model resnet18 --pretrained --epochs 100`
+* `python system_simulation_e2.py -c 10 --batch_size 16 --dataset cifar10 --model resnet18 --pretrained --epochs 100`
 
 </p>
 </details>
