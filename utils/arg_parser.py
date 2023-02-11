@@ -64,7 +64,7 @@ def parse_arguments():
     parser.add_argument(
         "--model",
         type=str,
-        default="resnet18_split",
+        default="resnet18",
         help="Model you would like to train",
     )
     parser.add_argument(
