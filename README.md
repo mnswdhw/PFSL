@@ -22,7 +22,7 @@ For finding the FLOPs of our Pytorch split model at the client side, we use the 
 * Python3 (3.8)
 * pip3
 * Nvidia GPU (>=12GB)
-* conda: 4.12.0
+* conda
 
 
 ## 4)Installation
