@@ -19,16 +19,18 @@ For finding the FLOPs of our Pytorch split model at the client side, we use the 
 
 
 ## 3) Build requirements:
-* Python3 (>=3.8)
+* Python3 (3.8)
 * pip3
 * Nvidia GPU (>=12GB)
+* conda: 4.12.0
+
 
 ## 4)Installation
 Use the following steps to install the required libraries:
 * Change Directory into the project folder
 * Create a conda environment using the command 
-`conda create --name {env_name}`
-Eg- `conda create --name pfsl`
+`conda create --name {env_name} python=3.8`
+Eg- `conda create --name pfsl python=3.8`
 * Activate conda environment using the command 
 `conda activate {env_name}`
 Eg- `conda activate pfsl`
@@ -36,7 +38,7 @@ Eg- `conda activate pfsl`
 
 ## 5) Test Run
 
-### Paramateres
+### Parameters
 The parameters options for a particular file can be checked adding -–help argument.
 <br/>Optional arguments available for PFSL are:
 * -h, –help show this help message and exit
@@ -56,7 +58,14 @@ The parameters options for a particular file can be checked adding -–help argu
 * –-setting Setting you would like to run for, i.e, setting1 ,setting2 or setting4 (default: setting1)
 * –-checkpoint Epoch at which personalisation phase will start (default: 50)
 
-For reproducing the results, always add argument –-pretrained while running the PFSL script. For logging the results wandb had been used, so  to log the results to wandb, where wandb.init() is used, entity and project have to be specified according to the project folder where you wish to log the results. Create a results directory in the project folder to store all the resulting plots. 
+For reproducing the results, always add argument –-pretrained while running the PFSL script. 
+
+Create a results directory in the project folder to store all the resulting plots using the below commands.
+* `mkdir results`
+* `mkdir results/FL`
+* `mkdir results/SL`
+* `mkdir results/SFLv1`
+* `mkdir results/SFLv2`
 
 ### Commands for all the scenarios
 
