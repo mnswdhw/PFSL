@@ -51,7 +51,6 @@ The parameters options for a particular file can be checked adding -–help argu
 * –-model Model you would like to train (default: resnet18)
 * –-epoch_batch Number of epochs after which next batchof clients should join (default: 5)
 * –-opt_iden optional identifier of experiment (default: )
-* –-disable_wandb Disable wandb logging (default: False)
 * –-pretrained Use transfer learning using a pretrained model (default: False)
 * –-datapoints Number of samples of training data allotted to each client (default: 500)
 * –-setting Setting you would like to run for, i.e, setting1 ,setting2 or setting4 (default: setting1)

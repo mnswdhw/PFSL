@@ -8,7 +8,6 @@ from torch.utils.data import DataLoader, Dataset
 import torch.nn.functional as F
 import math
 import os.path
-import wandb
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from PIL import Image
@@ -113,15 +112,8 @@ def parse_arguments():
         "--datapoints",
         type=int,
         default=500,
-     
     )
 
-    parser.add_argument(
-        "--disable_wandb",
-        type=bool,
-        default=False,
-     
-    )
 
     parser.add_argument(
         "--opt_iden",
@@ -131,7 +123,6 @@ def parse_arguments():
 
     args = parser.parse_args()
     return args
-
 
 def plot_class_distribution(clients,  client_ids):
     class_distribution=dict()
@@ -156,7 +147,7 @@ def plot_class_distribution(clients,  client_ids):
             j=0
     fig.tight_layout()
     # plt.show()
-    # wandb.log({"Histogram": wandb.Image(plt)})
+
     plt.savefig('plot_sl.png')
     # plt.savefig(f'./results/classvsfreq/settin3{dataset}.png')  
 
@@ -170,7 +161,6 @@ def plot_class_distribution(clients,  client_ids):
     plt.ylim(0, max_len)
     plt.legend()
     # plt.show()
-    # wandb.log({"Line graph": wandb.Image(plt)})
     # plt.savefig(f'./results/class_vs_fre/q/{dataset}_{number_of_clients}clients_{epochs}epochs_{batch_size}batch_{opt}_line_graph.png')
     
     return class_distribution
@@ -531,16 +521,7 @@ def evaluate_server(fx_client, y, idx, len_batch, ell):
                     max_epoch=ell
                     print("MAX F1: ", max_f1, "MAX EPOCh: ", max_epoch)
                 print(macro_avg_f1_dict)
-                wandb.log({
-                "Epoch": ell,
-                "Client0_F1 Scores": macro_avg_f1_dict[0],
-                # "Client1_F1_Scores":macro_avg_f1_dict[1],
-                "Client5_F1_Scores":macro_avg_f1_dict[5],
-                "Personalized Average Train Accuracy": acc_avg_all_user_train,
-                "Personalized Average Test Accuracy": acc_avg_all_user,  
-                "Personalized Average Test Accuracy 1": acc_avg_all_user1, 
-                "Personalized Average Test Accuracy 2": acc_avg_all_user2, 
-            })
+
                 macro_avg_f1_dict={}
 
          
@@ -671,25 +652,6 @@ if __name__ == "__main__":
 
     input_channels=3
     no_classes=3
-
-    mode = "online"
-    if args.disable_wandb:
-        mode = "disabled"
-        
-    wandb.init(entity="iitbhilai", project="Split_learning_exps", mode = mode)
-    wandb.run.name = args.opt_iden
-
-    config = wandb.config          
-    config.batch_size = args.batch_size    
-    config.test_batch_size = args.test_batch_size        
-    config.epochs = args.epochs             
-    config.lr = args.lr       
-    config.dataset = args.dataset
-    # config.model = args.model
-    config.seed = args.seed
-    config.opt = args.opt_iden
-
-
 
     random.seed(SEED)
     np.random.seed(SEED)

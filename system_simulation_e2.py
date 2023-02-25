@@ -24,7 +24,6 @@ import numpy as np
 from ConnectedClient import ConnectedClient
 import importlib
 from utils.merge import merge_grads, merge_weights
-import wandb
 import pandas as pd
 import time 
 from utils.split_dataset import DatasetFromSubset
@@ -233,7 +232,6 @@ def plot_class_distribution(clients, dataset, batch_size, epochs, opt, client_id
             j=0
     fig.tight_layout()
     plt.show()
-    wandb.log({"Histogram": wandb.Image(plt)})
     # plt.savefig(f'./results/class_vs_freq/{dataset}_{number_of_clients}clients_{epochs}epochs_{batch_size}batch_{opt}_histogram.png')  
 
     max_len=0
@@ -246,7 +244,6 @@ def plot_class_distribution(clients, dataset, batch_size, epochs, opt, client_id
     plt.ylim(0, max_len)
     plt.legend()
     plt.show()
-    wandb.log({"Line graph": wandb.Image(plt)})
     # plt.savefig(f'./results/class_vs_freq/{dataset}_{number_of_clients}clients_{epochs}epochs_{batch_size}batch_{opt}_line_graph.png')
     
     return class_distribution
@@ -258,22 +255,7 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Arguments provided", args)
 
-    mode = "online"
-    if args.disable_wandb:
-        mode = "disabled"
-        
-    wandb.init(entity="iitbhilai", project="Split_learning exps", mode = mode)
-    wandb.run.name = args.opt_iden
-
-    config = wandb.config          
-    config.batch_size = args.batch_size    
-    config.test_batch_size = args.test_batch_size        
-    config.epochs = args.epochs             
-    config.lr = args.lr       
-    config.dataset = args.dataset
-    config.model = args.model
-    config.seed = args.seed
-    config.opt = args.opt_iden                              
+                               
 
 
     random.seed(args.seed)
@@ -432,11 +414,7 @@ if __name__ == "__main__":
                 print(f' Personalized Average Test Acc: {overall_test_acc[-1]}')
             
         
-            wandb.log({
-                "Epoch": epoch,
-                "Personalized Average Train Accuracy": overall_train_acc[-1],
-                "Personalized Average Test Accuracy": overall_test_acc[-1],  
-            })
+  
 
     timestamp = int(datetime.now().timestamp())
     plot_config = f'''dataset: {args.dataset},
@@ -446,7 +424,7 @@ if __name__ == "__main__":
 
     et = time.time()
     print(f"Time taken for this run {(et - st)/60} mins")
-    wandb.log({"time taken by program in mins": (et - st)/60})
+
 
     X = range(args.epochs)
     all_clients_stacked_train = np.array([client.train_acc for _,client in clients.items()])
@@ -472,24 +450,22 @@ if __name__ == "__main__":
     plt.fill_between(X,Y_train_lower , Y_train_upper, color='blue', alpha=0.25)
     # plt.savefig(f'./results/train_acc_vs_epoch/{args.dataset}_{args.number_of_clients}clients_{args.epochs}epochs_{args.batch_size}batch_{args.opt}.png', bbox_inches='tight')
     plt.show()
-    wandb.log({"train_plot": wandb.Image(plt)})
 
     plt.figure(1)
     plt.plot(X, Y_test)
     plt.fill_between(X,Y_test_lower , Y_test_upper, color='blue', alpha=0.25)
     # plt.savefig(f'./results/test_acc_vs_epoch/{args.dataset}_{args.number_of_clients}clients_{args.epochs}epochs_{args.batch_size}batch_{args.opt}.png', bbox_inches='tight')
     plt.show()
-    wandb.log({"test_plot": wandb.Image(plt)})
+ 
 
     plt.figure(2)
     plt.plot(X, Y_train_cv)
     plt.show()
-    wandb.log({"train_cv": wandb.Image(plt)})
+   
 
     plt.figure(3)
     plt.plot(X, Y_test_cv)
     plt.show()
-    wandb.log({"test_cv": wandb.Image(plt)})
 
 
 

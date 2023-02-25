@@ -2,7 +2,6 @@
 # Federated learning: ResNet18 
 # ===========================================================
 import torch
-import wandb
 from torch import nn
 from torchvision import transforms
 from torch.utils.data import DataLoader, Dataset
@@ -113,12 +112,7 @@ def parse_arguments():
         default=500,
      
     )
-    parser.add_argument(
-        "--disable_wandb",
-        type=bool,
-        default=False,
-     
-    )
+
 
     parser.add_argument(
         "--opt_iden",
@@ -324,7 +318,7 @@ def plot_class_distribution(clients,  client_ids):
             j=0
     fig.tight_layout()
     plt.show()
-    # wandb.log({"Histogram": wandb.Image(plt)})
+
     plt.savefig('plot_fl.png')
     # plt.savefig(f'./results/classvsfreq/settin3{dataset}.png')  
 
@@ -338,7 +332,7 @@ def plot_class_distribution(clients,  client_ids):
     plt.ylim(0, max_len)
     plt.legend()
     plt.show()
-    # wandb.log({"Line graph": wandb.Image(plt)})
+ 
     # plt.savefig(f'./results/class_vs_fre/q/{dataset}_{number_of_clients}clients_{epochs}epochs_{batch_size}batch_{opt}_line_graph.png')
     
     return class_distribution
@@ -518,22 +512,7 @@ if __name__ == "__main__":
     global clients
     clients={}
 
-    mode="online"
-    if args.disable_wandb:
-        mode = "disabled"
-        
-    wandb.init(entity="iitbhilai", project="Split_learning_exps", mode = mode)
-    wandb.run.name = args.opt_iden
 
-    config = wandb.config          
-    config.batch_size = args.batch_size    
-    config.test_batch_size = args.test_batch_size        
-    config.epochs = args.epochs             
-    config.lr = args.lr       
-    config.dataset = args.dataset
-    # config.model = args.model
-    config.seed = args.seed
-    config.opt = args.opt_iden
 
 
     # To print in color during test/train 
@@ -654,16 +633,7 @@ if __name__ == "__main__":
         print('-------------------------------------------------------------------------')
      
         print(macro_avg_f1_dict)
-        wandb.log({
-                "Epoch": iter,
-                "Client0_F1 Scores": macro_avg_f1_dict[0],
-                "Client5_F1_Scores":macro_avg_f1_dict[5],
-
-                "Personalized Average Train Accuracy": acc_avg_train,
-                "Personalized Average Test Accuracy": acc_avg_test,  
-                "Personalized Average Test Accuracy 1": acc_avg_test1, 
-                "Personalized Average Test Accuracy 2": acc_avg_test2, 
-            })
+ 
         macro_avg_f1_dict={}
     
 

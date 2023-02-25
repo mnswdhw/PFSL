@@ -21,7 +21,6 @@ import copy
 import argparse
 from utils import datasets,dataset_settings
 import time
-import wandb
 from sklearn.metrics import classification_report
 
 
@@ -33,19 +32,14 @@ def parse_arguments():
         description="Splitfed V1 configurations",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
+
     parser.add_argument(
         "--seed",
         type=int,
         default=1234,
         help="Random seed",
     )
-    parser.add_argument(
-        "--disable_wandb",
-        type=bool,
-        default=False,
-        help='Disable wandb'
-     
-    )
+
     parser.add_argument(
         "--opt_iden",
         type=str,
@@ -102,13 +96,11 @@ def parse_arguments():
         help="Batch size",
     )
 
-
     parser.add_argument(
         "--setting",
         type=str,
         default="setting1",
         help='Setting you would like to run for, i.e, setting1 , setting2 or setting4'
-     
     )
 
     parser.add_argument(
@@ -396,7 +388,6 @@ def plot_class_distribution(clients,  client_ids):
             j=0
     fig.tight_layout()
     plt.show()
-    # wandb.log({"Histogram": wandb.Image(plt)})
     plt.savefig('plot_fl.png')
     # plt.savefig(f'./results/classvsfreq/settin3{dataset}.png')  
 
@@ -410,7 +401,6 @@ def plot_class_distribution(clients,  client_ids):
     plt.ylim(0, max_len)
     plt.legend()
     plt.show()
-    # wandb.log({"Line graph": wandb.Image(plt)})
     # plt.savefig(f'./results/class_vs_fre/q/{dataset}_{number_of_clients}clients_{epochs}epochs_{batch_size}batch_{opt}_line_graph.png')
     
     return class_distribution
@@ -454,22 +444,6 @@ if __name__ == "__main__":
     global clients
     clients={}
 
-    mode="online"
-    if args.disable_wandb:
-        mode = "disabled"
-        
-    wandb.init(entity="iitbhilai", project="Split_learning_exps", mode = mode)
-    wandb.run.name = args.opt_iden
-
-    config = wandb.config          
-    config.batch_size = args.batch_size    
-    config.test_batch_size = args.test_batch_size        
-    config.epochs = args.epochs             
-    config.lr = args.lr       
-    config.dataset = args.dataset
-    # config.model = args.model
-    config.seed = args.seed
-    config.opt = args.opt_iden
 
     # To print in color during test/train 
     def prRed(skk): print("\033[91m {}\033[00m" .format(skk)) 
@@ -583,15 +557,6 @@ if __name__ == "__main__":
             print('Avg F1 Score{:.3f}'.format( f1_avg_all_user ))
         print('-------------------------------------------------------------------------')
 
-        
-        wandb.log({
-                "Epoch": iter,
-                "F1 Scores:": f1_avg_all_user,
-                
-                "Personalized Average Train Accuracy": acc_avg_train,
-                "Personalized Average Test Accuracy": acc_avg_test,  
-           
-            })
         macro_avg_f1_dict={}
     
 
@@ -641,26 +606,22 @@ if __name__ == "__main__":
     plt.plot(X, Y_train)
     plt.fill_between(X,Y_train_lower , Y_train_upper, color='blue', alpha=0.25)
     # plt.savefig(f'./results/test_acc_vs_epoch/{args.dataset}_{args.number_of_clients}clients_{args.epochs}epochs_{args.batch_size}batch_{args.opt}.png', bbox_inches='tight')
-   
     plt.show()
-    wandb.log({"train_plot": wandb.Image(plt)})
 
     plt.figure(1)
     plt.plot(X, Y_test)
     plt.fill_between(X,Y_test_lower , Y_test_upper, color='blue', alpha=0.25)
     # plt.savefig(f'./results/test_acc_vs_epoch/{args.dataset}_{args.number_of_clients}clients_{args.epochs}epochs_{args.batch_size}batch_{args.opt}.png', bbox_inches='tight')
     plt.show()
-    wandb.log({"test_plot": wandb.Image(plt)})
 
     plt.figure(2)
     plt.plot(X, Y_train_cv)
     plt.show()
-    wandb.log({"train_cv": wandb.Image(plt)})
 
     plt.figure(3)
     plt.plot(X, Y_test_cv)
     plt.show()
-    wandb.log({"test_cv": wandb.Image(plt)})
+  
 
     #=============================================================================
     #                         Program Completed

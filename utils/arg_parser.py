@@ -79,12 +79,7 @@ def parse_arguments():
         default="",
         help="optional identifier of experiment",
     )
-    parser.add_argument(
-        "--disable_wandb",
-        action="store_true",
-        default=False,
-        help="Disable wandb logging",
-    )
+
     parser.add_argument(
         "--pretrained",
         action="store_true",

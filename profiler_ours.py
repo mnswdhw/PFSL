@@ -32,7 +32,6 @@ import numpy as np
 from ConnectedClient import ConnectedClient
 import importlib
 from utils.merge import merge_grads, merge_weights
-import wandb
 import pandas as pd
 import time 
 

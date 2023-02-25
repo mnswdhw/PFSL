@@ -17,9 +17,7 @@ import random
 import numpy as np
 import os
 import matplotlib
-
 import matplotlib.pyplot as plt
-import wandb
 import copy
 import argparse
 from utils import datasets, dataset_settings
@@ -114,13 +112,7 @@ def parse_arguments():
         help='NUmber of data samples per client in setting 1'
      
     )
-    parser.add_argument(
-        "--disable_wandb",
-        type=bool,
-        default=False,
-        help='Disable wandb'
-     
-    )
+
     parser.add_argument(
         "--opt_iden",
         type=str,
@@ -465,13 +457,7 @@ def evaluate_server(fx_client, y, idx, len_batch, ell):
                 else:
                     if(acc_avg_all_user> max_accuracy):
                         max_accuracy=acc_avg_all_user
-                wandb.log({
-                "Epoch": ell,
-                "F1 Scores: ": f1_avg_all_user,
-                "Personalized Average Train Accuracy": acc_avg_all_user_train,
-                "Personalized Average Test Accuracy": acc_avg_all_user,  
-               
-            })
+
                 macro_avg_f1_dict={}
 
              
@@ -569,22 +555,6 @@ if __name__ == "__main__":
     lr = args.lr
     dataset = args.dataset
         
-    mode = "online"
-    if args.disable_wandb:
-        mode = "disabled"
-        
-    wandb.init(entity="iitbhilai", project="Split_learning_exps", mode = mode)
-    wandb.run.name = args.opt_iden
-
-    config = wandb.config          
-    config.batch_size = args.batch_size    
-    config.test_batch_size = args.test_batch_size        
-    config.epochs = args.epochs             
-    config.lr = args.lr       
-    config.dataset = args.dataset
-    # config.model = args.model
-    config.seed = args.seed
-    config.opt = args.opt_iden
 
     if args.dataset == "mnist" or args.dataset == "fmnist":
         input_channels = 1
@@ -718,8 +688,6 @@ if __name__ == "__main__":
 
     et = time.time()
     print(f"Total time taken is {(et-st)/60} mins")
-    
-    wandb.log({"time taken by program in mins": (et - st)/60})
        
 
     #===============================================================================
@@ -762,26 +730,21 @@ if __name__ == "__main__":
     plt.plot(X, Y_train)
     plt.fill_between(X,Y_train_lower , Y_train_upper, color='blue', alpha=0.25)
     # plt.savefig(f'./results/test_acc_vs_epoch/{args.dataset}_{args.number_of_clients}clients_{args.epochs}epochs_{args.batch_size}batch_{args.opt}.png', bbox_inches='tight')
-   
     plt.show()
-    wandb.log({"train_plot": wandb.Image(plt)})
 
     plt.figure(1)
     plt.plot(X, Y_test)
     plt.fill_between(X,Y_test_lower , Y_test_upper, color='blue', alpha=0.25)
     # plt.savefig(f'./results/test_acc_vs_epoch/{args.dataset}_{args.number_of_clients}clients_{args.epochs}epochs_{args.batch_size}batch_{args.opt}.png', bbox_inches='tight')
     plt.show()
-    wandb.log({"test_plot": wandb.Image(plt)})
 
     plt.figure(2)
     plt.plot(X, Y_train_cv)
     plt.show()
-    wandb.log({"train_cv": wandb.Image(plt)})
 
     plt.figure(3)
     plt.plot(X, Y_test_cv)
     plt.show()
-    wandb.log({"test_cv": wandb.Image(plt)})
 
     #=============================================================================
     #                         Program Completed
