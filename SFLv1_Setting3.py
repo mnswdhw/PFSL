@@ -52,7 +52,7 @@ def parse_arguments():
         "-n",
         "--epochs",
         type=int,
-        default=20,
+        default=50,
         metavar="N",
         help="Total number of epochs to train",
     )
@@ -83,14 +83,14 @@ def parse_arguments():
         "-b",
         "--batch_size",
         type=int,
-        default=1024,
+        default=128,
         metavar="B",
         help="Batch size",
     )
     parser.add_argument(
         "--test_batch_size",
         type=int,
-        default=512,
+        default=128,
 
     )
 
@@ -510,6 +510,20 @@ def dataset_iid(dataset, num_users):
         dict_users[i] = set(np.random.choice(all_idxs, num_items, replace = False))
         all_idxs = list(set(all_idxs) - dict_users[i])
     return dict_users    
+
+def dataset_iid_setting3(u_dataset, c_dataset, num_users):
+
+    # u_user_idx = 0
+    c_users = num_users - 1
+    num_items = int(len(c_dataset)/c_users)  #150
+
+    unique_idxs = [i for i in range(len(u_dataset))]
+    dict_users, all_idxs = {}, [i for i in range(len(c_dataset))]
+    dict_users[0] = set(unique_idxs)
+    for i in range(1, c_users + 1):
+        dict_users[i] = set(np.random.choice(all_idxs, num_items, replace = False))
+        all_idxs = list(set(all_idxs) - dict_users[i])
+    return dict_users  
                           
 
 if __name__ == "__main__":
@@ -525,6 +539,7 @@ if __name__ == "__main__":
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     args = parse_arguments()
+    print(args)
 
     SEED = args.seed
     num_users = args.number_of_clients
@@ -618,18 +633,25 @@ if __name__ == "__main__":
         transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
     ])
 
-    train_full_dataset, test_full_dataset, input_channels = datasets.load_full_dataset(dataset, "data", num_users, args.datapoints, transform_train, transform_test)
+    # train_full_dataset, test_full_dataset, input_channels = datasets.load_full_dataset(dataset, "data", num_users, args.datapoints, transform_train, transform_test)
 
-    print(len(train_full_dataset))
-    print(len(test_full_dataset))
+    # print(len(train_full_dataset))
+    # print(len(test_full_dataset)) 
 
     #----------------------------------------------------------------
     # dict_users = dataset_iid(train_full_dataset, num_users)
     # dict_users_test = dataset_iid(test_full_dataset, num_users)
 
-    dict_users , dict_users_test = dataset_settings.get_dicts(train_full_dataset, test_full_dataset, num_users, args.setting, args.datapoints)
+    # dict_users , dict_users_test = dataset_settings.get_dicts(train_full_dataset, test_full_dataset, num_users, args.setting, args.datapoints)
 
     # print(dict_users)
+
+
+    if dataset == "cifar10_setting3":
+        u_train_dataset,c_train_full_dataset, test_full_dataset, input_channels = datasets.load_full_dataset(dataset, "data", num_users, args.datapoints, transform_train, transform_test)
+        dict_users = dataset_iid_setting3(u_train_dataset, c_train_full_dataset, num_users)
+        dict_users_test = dataset_iid(test_full_dataset, num_users)
+
 
 
     #------------ Training And Testing  -----------------
@@ -645,7 +667,12 @@ if __name__ == "__main__":
         w_locals_client = []
         
         for idx in idxs_users:
-            local = Client(net_glob_client, idx, lr, device, dataset_train = train_full_dataset, dataset_test = test_full_dataset, idxs = dict_users[idx], idxs_test = dict_users_test[idx])
+
+            if idx == 0:
+                local = Client(net_glob_client, idx, lr, device, dataset_train = u_train_dataset, dataset_test = test_full_dataset, idxs = dict_users[idx], idxs_test = dict_users_test[idx])
+            else:
+                local = Client(net_glob_client, idx, lr, device, dataset_train = c_train_full_dataset, dataset_test = test_full_dataset, idxs = dict_users[idx], idxs_test = dict_users_test[idx])
+
             # Training ------------------
             w_client = local.train(net = copy.deepcopy(net_glob_client).to(device))
             w_locals_client.append(copy.deepcopy(w_client))
@@ -669,6 +696,7 @@ if __name__ == "__main__":
     print(f"Time taken is {(et-st)/60} mins")
     print("Training and Evaluation completed!")    
 
+    print("Average C1 - C10 test accuracy: ", max(acc_test_collect))
     print("Max test accuracy of unique client is: ", max(unique_test))
 
     #===============================================================================

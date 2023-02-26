@@ -719,7 +719,8 @@ if __name__ == "__main__":
     print(f"Time taken is {(et-st)/60} mins")
     print("Training and Evaluation completed!")    
 
-    print("Max test accuracy of unique client is: ", max(unique_test))
+    # print("Max test accuracy of unique client is: ", max(unique_test))
+    print("Maximum Average Test Accuracy: ", max(acc_test_collect))
 
     #===============================================================================
     # Save output data to .excel file (we use for comparision plots)

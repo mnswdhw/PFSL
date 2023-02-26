@@ -688,6 +688,7 @@ if __name__ == "__main__":
 
     et = time.time()
     print(f"Total time taken is {(et-st)/60} mins")
+    print("Maximum Average Test Accuracy: ", max(acc_test_collect))
        
 
     #===============================================================================

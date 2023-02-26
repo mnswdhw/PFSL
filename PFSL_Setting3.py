@@ -253,8 +253,6 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Arguments provided", args)
 
-             
-
 
     random.seed(args.seed)
     torch.manual_seed(args.seed)
@@ -319,6 +317,11 @@ if __name__ == "__main__":
 
     st = time.time()
 
+    max_train_small_clients = 0
+    max_test_small_clients = 0
+    max_train_large_client = 0
+    max_test_large_client = 0
+
     #Starting the training process 
     for epoch in range(args.epochs):
 
@@ -358,11 +361,16 @@ if __name__ == "__main__":
 
             client.train_acc[-1] /= num_iterations_common
             if c_id == unique_client_id:
-                print("unique client train accuracy", client.train_acc[-1])
-            overall_train_acc[-1] += client.train_acc[-1]
+                print("Large client train accuracy", client.train_acc[-1])
+                if client.train_acc[-1] >= max_train_large_client:
+                    max_train_large_client = client.train_acc[-1]
+            else:    
+                overall_train_acc[-1] += client.train_acc[-1]
 
-        overall_train_acc[-1] /= len(clients)
-        print(f'Epoch {epoch} Personalized Average Train Acc: {overall_train_acc[-1]}')
+        overall_train_acc[-1] /= (len(clients)-1)
+        if overall_train_acc[-1] >= max_train_small_clients:
+            max_train_small_clients = overall_train_acc[-1]
+        print(f'Epoch {epoch} C1-C10 Average Train Acc: {overall_train_acc[-1]}\n')
 
         # merge weights below uncomment 
         params = []
@@ -406,12 +414,22 @@ if __name__ == "__main__":
 
                     client.test_acc[-1] /= num_test_iterations
                     if client_id == unique_client_id:
-                        print("unique client test accuracy", client.test_acc[-1])
+                        print("Large client test accuracy", client.test_acc[-1])
+                        if client.test_acc[-1] >= max_test_large_client:
+                            max_test_large_client = client.train_acc[-1]
                     else:
                         overall_test_acc[-1] += client.test_acc[-1]  #not including test accuracy of unique client
 
                 overall_test_acc[-1] /= (len(clients)-1)
-                print(f' Personalized Average Test Acc: {overall_test_acc[-1]}')
+
+                if overall_test_acc[-1] >= max_test_small_clients:
+                    max_test_small_clients = overall_test_acc[-1]
+                print(f' Epoch {epoch} C1-C10 Average Test Acc: {overall_test_acc[-1]}\n')
+
+    # print("Average C1 - C10 Train accuracy: ", max_train_small_clients)
+    # print("Large Client train Accuracy: ", max_train_large_client)
+    print("Average C1 - C10 test accuracy: ", max_test_small_clients)
+    print("Large Client test Accuracy: ", max_test_large_client)
             
         
 

@@ -85,7 +85,7 @@ def parse_arguments():
         "-b",
         "--batch_size",
         type=int,
-        default=64,
+        default=128,
         metavar="B",
         help="Batch size",
     )
@@ -93,7 +93,7 @@ def parse_arguments():
 
         "--test_batch_size",
         type=int,
-        default=512,
+        default=128,
         metavar="B",
         help="Batch size",
     )
@@ -114,6 +114,32 @@ def parse_arguments():
 
     args = parser.parse_args()
     return args
+
+
+
+def dataset_iid(dataset, num_users):
+    
+    num_items = int(len(dataset)/num_users)
+    dict_users, all_idxs = {}, [i for i in range(len(dataset))]
+    for i in range(num_users):
+        dict_users[i] = set(np.random.choice(all_idxs, num_items, replace = False))
+        all_idxs = list(set(all_idxs) - dict_users[i])
+    return dict_users    
+
+def dataset_iid_setting3(u_dataset, c_dataset, num_users):
+
+    # u_user_idx = 0
+    c_users = num_users - 1
+    num_items = int(len(c_dataset)/c_users)  #150
+
+    unique_idxs = [i for i in range(len(u_dataset))]
+    dict_users, all_idxs = {}, [i for i in range(len(c_dataset))]
+    dict_users[0] = set(unique_idxs)
+    for i in range(1, c_users + 1):
+        dict_users[i] = set(np.random.choice(all_idxs, num_items, replace = False))
+        all_idxs = list(set(all_idxs) - dict_users[i])
+    return dict_users  
+                          
 
 
 
@@ -364,7 +390,7 @@ def evaluate_server(fx_client, y, idx, len_batch, ell):
         #---------forward prop-------------
         fx_server = net_glob_server(fx_client)
         
-        # calculate loss
+        # calculate lossdataset_iid
         loss = criterion(fx_server, y)
         # calculate accuracy
         acc = calculate_accuracy(fx_server, y)
@@ -572,10 +598,30 @@ if __name__ == "__main__":
     fed_check = False
 
     
-    train_full_dataset, test_full_dataset, input_channels = datasets.load_full_dataset(dataset, "data", num_users, args.datapoints)
+    # train_full_dataset, test_full_dataset, input_channels = datasets.load_full_dataset(dataset, "data", num_users, args.datapoints)
 
-    #----------------------------------------------------------------
-    dict_users , dict_users_test = dataset_settings.get_dicts(train_full_dataset, test_full_dataset, num_users, args.setting, args.datapoints)
+    # #----------------------------------------------------------------
+    # dict_users , dict_users_test = dataset_settings.get_dicts(train_full_dataset, test_full_dataset, num_users, args.setting, args.datapoints)
+
+
+    transform_train = transforms.Compose([
+        transforms.RandomCrop(32, padding=4),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+    ])
+
+    transform_test = transforms.Compose([
+        transforms.RandomCrop(32, padding=4),
+        transforms.ToTensor(),
+        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+    ])
+
+    if dataset == "cifar10_setting3":
+        u_train_dataset,c_train_full_dataset, test_full_dataset, input_channels = datasets.load_full_dataset(dataset, "data", num_users, args.datapoints, transform_train, transform_test)
+        dict_users = dataset_iid_setting3(u_train_dataset, c_train_full_dataset, num_users)
+        dict_users_test = dataset_iid(test_full_dataset, num_users)
+
 
     #------------ Training And Testing -----------------
     net_glob_client.train()
@@ -591,7 +637,11 @@ if __name__ == "__main__":
         w_locals_client = []
         
         for idx in idxs_users:
-            local = Client(net_glob_client, idx, lr, device, dataset_train = train_full_dataset, dataset_test = test_full_dataset, idxs = dict_users[idx], idxs_test = dict_users_test[idx])
+
+            if idx == 0:
+                local = Client(net_glob_client, idx, lr, device, dataset_train = u_train_dataset, dataset_test = test_full_dataset, idxs = dict_users[idx], idxs_test = dict_users_test[idx])
+            else:
+                local = Client(net_glob_client, idx, lr, device, dataset_train = c_train_full_dataset, dataset_test = test_full_dataset, idxs = dict_users[idx], idxs_test = dict_users_test[idx])
             # Training ------------------
             w_client = local.train(net = copy.deepcopy(net_glob_client).to(device))
             w_locals_client.append(copy.deepcopy(w_client))
@@ -616,6 +666,7 @@ if __name__ == "__main__":
 
     et = time.time()
     print(f"Total time taken is {(et-st)/60} mins")
+    print("Average C1 - C10 test accuracy: ", max(acc_test_collect))
     print("Max test accuracy of unique client is: ", max(unique_test))   
 
     #===============================================================================

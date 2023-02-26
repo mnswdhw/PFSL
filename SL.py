@@ -668,6 +668,9 @@ if __name__ == "__main__":
     # print("Max test accuracy of unique client is: ", max(unique_test))   
     #===============================================================================
     # Save output data to .excel file (we use for comparision plots)
+
+    print("Maximum Average Test Accuracy: ", max(acc_test_collect))
+
     round_process = [i for i in range(1, len(acc_train_collect)+1)]
     df = DataFrame({'round': round_process,'acc_train':acc_train_collect, 'acc_test':acc_test_collect})     
     file_name = f"results/SL/{program}_{args.batch_size}_{args.dataset}_{args.lr}_{args.epochs}_setting2"+".xlsx"    

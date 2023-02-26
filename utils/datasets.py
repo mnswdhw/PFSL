@@ -112,7 +112,7 @@ def CIFAR10_iid(num_clients, datapoints, path, transform_train, transform_test):
     return new_train_dataset, new_test_dataset, dict(class2idx), idx2class
 
 
-def cifar10_setting2(num_clients, unique_datapoint, c_datapoints, path, transform_train, transform_test):
+def cifar10_setting3(num_clients, unique_datapoint, c_datapoints, path, transform_train, transform_test):
 
     if transform_train is None:
         #TL
@@ -144,14 +144,15 @@ def cifar10_setting2(num_clients, unique_datapoint, c_datapoints, path, transfor
     
     #for setting two the datapoints are the equal datapoints 
     # so c1: 2000, c2 - c11: 150 each 
-    new_train_dataset_size = unique_datapoint + ((num_clients - 1) * c_datapoints)
+
+    new_train_dataset_size = unique_datapoint + ((num_clients - 1) * c_datapoints)   # 2000 + 10 * 150
     temp = len(train_dataset) - new_train_dataset_size
 
     print(len(train_dataset), new_train_dataset_size, temp)
 
     new_train_dataset,_ = torch.utils.data.random_split(train_dataset, (new_train_dataset_size, temp))
-    unique_train_dataset, common_train_dataset = torch.utils.data.random_split(new_train_dataset, (unique_datapoint, new_train_dataset_size - unique_datapoint))
-    new_test_dataset,_ = torch.utils.data.random_split(test_dataset, (1000, 9000))  #keeping 2k datapoints with each client
+    unique_train_dataset, common_train_dataset = torch.utils.data.random_split(new_train_dataset, (unique_datapoint, new_train_dataset_size - unique_datapoint))    #2000, 1500
+    new_test_dataset,_ = torch.utils.data.random_split(test_dataset, (1100, 8900))
 
     return unique_train_dataset, common_train_dataset, new_test_dataset, dict(class2idx), idx2class
 
@@ -323,11 +324,14 @@ def load_full_dataset(dataset, dataset_path, num_clients, datapoints = None, pre
         train_dataset, test_dataset, ci,ic = CIFAR10_iid(num_clients, datapoints, dataset_path, transform_train, transform_test)
         input_channels = 3
 
-    if dataset == "cifar10_setting2":
-        u_datapoints = 5000
-        c_datapoints = 5000
+    if dataset == "cifar10_setting3":
+        u_datapoints = 2000
+        c_datapoints = 150
         input_channels = 3
-        u_train_dataset, c_train_dataset, test_dataset,_,_ = cifar10_setting2(num_clients, u_datapoints, c_datapoints, dataset_path, transform_train, transform_test)
+        #num_clients = 11
+        #transform_train, tranform_test = None, None 
+
+        u_train_dataset, c_train_dataset, test_dataset,_,_ = cifar10_setting3(num_clients, u_datapoints, c_datapoints, dataset_path, transform_train, transform_test)
         return u_train_dataset,c_train_dataset, test_dataset, input_channels
         
     return train_dataset, test_dataset, input_channels
