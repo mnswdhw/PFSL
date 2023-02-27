@@ -180,7 +180,7 @@ For this create directories using the command:
   
   
 The directory structure of data is as follows:
-* `data/eye_dataset1/train_images`
+* ` data/eye_dataset1/train_images`
 * `data/eye_dataset1/test_images`
 * `data/eye_dataset1/test.csv`
 * `data/eye_dataset1/train.csv`
