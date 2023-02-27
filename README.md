@@ -135,11 +135,11 @@ of the paper follow the below commands. In all the commands argument --datapoint
 MNIST, FMNIST, and CIFAR-10. To run all the algorithms for setting 4 argument --setting setting4 has
 to be added. Rest of the arguments can be selected as per choice. Dataset argument has 3 options: cifar10, mnist and fmnist.
 
-* `python PFSL_Setting124.py --dataset cifar10 --setting setting4 --pretrained --model resnet18 -c 5`
-* `python FL.py --dataset cifar10 --setting setting4 -c 5`
-* `python SL.py --dataset cifar10 --setting setting4 -c 5`
-* `python SFLv1.py --dataset cifar10 --setting setting4 -c 5`
-* `python SFLv2.py --dataset cifar10 --setting setting4 -c 5` 
+* `python PFSL_Setting124.py --dataset cifar10 --setting setting4 --pretrained --model resnet18 -c 5 --epochs 20`
+* `python FL.py --dataset cifar10 --setting setting4 -c 5 --epochs 20`
+* `python SL.py --dataset cifar10 --setting setting4 -c 5 --epochs 20`
+* `python SFLv1.py --dataset cifar10 --setting setting4 -c 5 --epochs 20`
+* `python SFLv2.py --dataset cifar10 --setting setting4 -c 5 --epochs 20` 
 </p>
 </details>
 
