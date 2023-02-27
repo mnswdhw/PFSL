@@ -177,8 +177,9 @@ For this create directories using the command:
 * `mkdir data/eye_dataset1`
 * `mkdir data/eye_dataset2`
 <br/>
+  
+  
 The directory structure of data is as follows:
-<br/>
 * `data/eye_dataset1/train_images`
 * `data/eye_dataset1/test_images`
 * `data/eye_dataset1/test.csv`
