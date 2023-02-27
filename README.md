@@ -57,6 +57,7 @@ The parameters options for a particular file can be checked adding -–help argu
 * –-datapoints Number of samples of training data allotted to each client (default: 500)
 * –-setting Setting you would like to run for, i.e, setting1 ,setting2 or setting4 (default: setting1)
 * –-checkpoint Epoch at which personalisation phase will start (default: 50)
+* --rate This arguments specifies the fraction of clients dropped off in every epoch (used in setting 5)(default: 0.5)
 
 For reproducing the results, always add argument –-pretrained while running the PFSL script. 
 
@@ -83,7 +84,7 @@ given below.
 * `python FL.py --dataset cifar10 --setting setting1 --datapoints 150 -c 10 --batch_size 64 --test_batch_size 512 --epochs 100`
 * `python SL.py --dataset cifar10 --setting setting1 --datapoints 150 -c 10 --batch_size 64 --test_batch_size 512 --epochs 100`
 * `python SFLv1.py --dataset cifar10 --setting setting1 --datapoints 150 -c 10 --batch_size 64 --test_batch_size 512 --epochs 100`
-* `python SFLv2.py --dataset cifar10 --setting setting1 --datapoints 150 -c 10 --batch_ize 64 --test_batch_size 512 --epochs 100`
+* `python SFLv2.py --dataset cifar10 --setting setting1 --datapoints 150 -c 10 --batch_size 64 --test_batch_size 512 --epochs 100`
 
 </p></details>
 
@@ -95,11 +96,11 @@ classes) and less from the remaining classes. We chose to experiment with heavy 
 from xth epoch, argument --checkpoint [x] has to be added.
 Rest of the arguments can be selected as per choice.
 
-* `python PFSL_Setting124.py --dataset cifar10 --setting setting2 --pretrained --model resnet18 -c 10`
-* `python FL.py --dataset cifar10 --setting setting2 -c 10`
-* `python SL.py --dataset cifar10 --setting setting2 -c 10`
-* `python SFLv1.py --dataset cifar10 --setting setting2 -c 10`
-* `python SFLv2.py --dataset cifar10 --setting setting2 -c 10`
+* `python PFSL_Setting124.py --dataset cifar10 --model resnet18 --pretrained --setting setting2 --batch_size 64 --test_batch_size 512 --checkpoint 25 --epochs 30`
+* `python FL.py --dataset cifar10 --setting setting2 -c 10 --batch_size 64 --test_batch_size 512 --epochs 100`
+* `python SL.py --dataset cifar10 --setting setting2 -c 10 --batch_size 64 --test_batch_size 512 --epochs 100`
+* `python SFLv1.py --dataset cifar10 --setting setting2 -c 10 --batch_size 64 --test_batch_size 512 --epochs 100`
+* `python SFLv2.py --dataset cifar10 --setting setting2 -c 10 --batch_size 64 --test_batch_size 512 --epochs 100`
 
 
   
@@ -114,13 +115,15 @@ among all the clients are the same. For evaluation purposes,
 we consider a test set having 2000 data points with an identical
 distribution of classes as the train set. 
 
-To reproduce this results, run the following commands. In all the commands argument --datapoints that denotes the number of datapoints of the large client has to be added.In our case it was 2000.
+To reproduce Table IV of the paper, run setting 1 with
+datapoints as 150 as illustrated above. To reproduce Table V
+of the paper follow the below commands. In all the commands argument --datapoints that denotes the number of datapoints of the large client has to be added.In our case it was 2000.
 
-* `python PFSL_Setting3.py --datapoints 2000 --dataset cifar10 --pretrained --model resnet18 -c 11`
-* `python FL_Setting3.py --datapoints 2000 --dataset cifar10  -c 11`
-* `python SL_Setting3.py  --datapoints 2000 --dataset cifar10  -c 11`
-* `python SFLv1_Setting3.py --datapoints 2000 --dataset cifar10  -c 11`
-* `python SFLv2_Setting3.py --datapoints 2000 --dataset cifar10  -c 11`
+* `python PFSL_Setting3.py --datapoints 2000 --dataset cifar10 --pretrained --model resnet18 -c 11 --epochs 50`
+* `python SFLv1_Setting3.py --datapoints 2000 --dataset cifar10_setting3 -c 11 --epochs 100`
+* `python SFLv2_Setting3.py --datapoints 2000 --dataset cifar10_setting3 -c 11 --epochs 100`
+* `python FL_Setting3.py --datapoints 2000 --dataset cifar10_setting3 -c 11 --epochs 100`
+* `python SL_Setting3.py --datapoints 2000 --dataset cifar10_setting3 -c 11 --epochs 100`
   
  </p>
  </details>
@@ -132,7 +135,7 @@ To reproduce this results, run the following commands. In all the commands argum
 MNIST, FMNIST, and CIFAR-10. To run all the algorithms for setting 4 argument --setting setting4 has
 to be added. Rest of the arguments can be selected as per choice. Dataset argument has 3 options: cifar10, mnist and fmnist.
 
-* `python PFSL_Setting124.py –disable dp --datasetcifar10 --setting setting4 --pretrained --model resnet18 -c 5`
+* `python PFSL_Setting124.py --dataset cifar10 --setting setting4 --pretrained --model resnet18 -c 5`
 * `python FL.py --dataset cifar10 --setting setting4 -c 5`
 * `python SL.py --dataset cifar10 --setting setting4 -c 5`
 * `python SFLv1.py --dataset cifar10 --setting setting4 -c 5`
@@ -147,7 +150,10 @@ to be added. Rest of the arguments can be selected as per choice. Dataset argume
 Thus, we evaluate our system for the worst possible scenario when every client cannot stay in the system for long and can only afford to make a minimal effort to participate. We assume that each client has 50 labeled data points sampled randomly but unique to the client. Within each round, we
 simulate a dropout, where clients begin training but are not able to complete the weight averaging. We keep the dropout probability at 50%. 
 
-* `python system_simulation_e2.py -c 10 --batch_size 16 --dataset cifar10 --model resnet18 --pretrained --epochs 100`
+
+Use the following command to reproduce the results: Here rate argument specifies the dropoff rate which is the numberof clients that will be dropped randomly in every epoch
+
+* `python system_simulation_e2.py -c 10 --batch_size 16 --dataset cifar10 --model resnet18 --pretrained --epochs 100 --rate 0.3`
 
 </p>
 </details>
