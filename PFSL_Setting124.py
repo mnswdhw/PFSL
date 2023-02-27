@@ -206,6 +206,7 @@ if __name__ == "__main__":
     #Starting the training process 
     for epoch in range(args.epochs):
         if(epoch==args.checkpoint): # When starting epoch of the perosnalisation is reached, freeze all the layers of the center model 
+            print("freezing the center model")
             for _, s_client in sc_clients.items():
                 s_client.center_model.freeze(epoch, pretrained=True)
 
@@ -219,8 +220,7 @@ if __name__ == "__main__":
         #For every batch in the current epoch
         for iteration in range(num_iterations):
             print(f'\rEpoch: {epoch+1}, Iteration: {iteration+1}/{num_iterations}', end='')
-
-            
+  
             for _, client in clients.items():
                 client.forward_front()
 
@@ -294,6 +294,9 @@ if __name__ == "__main__":
         #Testing every epoch
         if (epoch%1 == 0 ):
             if(epoch==args.checkpoint):
+                print("freezing the center model")
+                print("F1 Score at epoch ", epoch, " : ",f1_avg_all_user)
+                
                 for _, s_client in sc_clients.items():
                     s_client.center_model.freeze(epoch, pretrained=True)
             with torch.no_grad():
@@ -329,7 +332,7 @@ if __name__ == "__main__":
                     overall_test_acc[-1] += client.test_acc[-1]
                     #Calculating the F1 scores using the classification report from sklearn metrics
                     if(args.setting=='setting2'):
-                        clr=classification_report(np.array(client.y), np.array(client.pred), output_dict=True)
+                        clr=classification_report(np.array(client.y), np.array(client.pred), output_dict=True, zero_division=0)
                         idx=client_idxs[_]
 
                         macro_avg_f1_2classes.append((clr[str(idx)]['f1-score']+clr[str((idx+1)%10)]['f1-score'])/2) #macro f1 score of the 2 prominent classes in setting2

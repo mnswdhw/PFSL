@@ -27,22 +27,7 @@ x_test1=[]
 y_test1=[]
 x_test2=[]
 y_test2=[]
-# for i in range(0,2):
-#     print(x_train1[i])
-# # for i in range(0, 1000):
-#     idx = random.randint(0, len(x_train1)) 
-#     x_train3.append(x_train1[idx])
-#     x_train3.append(x_train2[idx])
-#     y_train3.append(y_train1[idx])    
-#     y_train3.append(y_train2[idx])
-#     x_train1= list(set(x_train1) -set(x_train1[idx] ))
-#     x_train2= list(set(x_train2) -set(x_train2[idx] ))    
-#     y_train1= list(set(y_train1) -set(y_train1[idx] ))
-#     y_train2= list(set(y_train2) -set(y_train2[idx] ))
 
-# all_players = set(range(12))
-# print(type(x_train1))
-# print(len(x_train1), "::", len(y_train1))
 temp =  x_train1[0: 1000]
 x_test1.extend(temp)
 
@@ -61,40 +46,24 @@ y_test2.extend(temp)
 x_train2=x_train2[1000:]
 y_train2= y_train2[1000:]
 
-print(len(x_train1))
-# print(x_train1[0])
-print(len(y_train1))
-# print(y_train1[0])
-
-print(len(x_train2))
-# print(x_train2[0])
-print(len(y_train2))
-# print(y_train2[0])
-
-
 list_0=find_indices(y_train1,0)
 list_1=find_indices(y_train1,1)
 list_2=find_indices(y_train1,2)
-print(len(list_0), "::", len(list_1), "::", len(list_2))
-print(len(y_train1))
+
 
 list_0=find_indices(y_train2,0)
 list_1=find_indices(y_train2,1)
 list_2=find_indices(y_train2,2)
-print(len(list_0), "::", len(list_1), "::", len(list_2))
-print(len(y_train2))
+
 
 list_0=find_indices(y_test1,0)
 list_1=find_indices(y_test1,1)
 list_2=find_indices(y_test1,2)
-print(len(list_0), "::", len(list_1), "::", len(list_2))
-print(len(y_test1))
+
 
 list_0=find_indices(y_test2,0)
 list_1=find_indices(y_test2,1)
 list_2=find_indices(y_test2,2)
-print(len(list_0), "::", len(list_1), "::", len(list_2))
-print(len(y_test2))
 
 
 class CreateDataset(Dataset):
@@ -166,8 +135,7 @@ def get_idxs():
         list_0=find_indices(y_train,0)
         list_1=find_indices(y_train,1)
         list_2=find_indices(y_train,2)
-        print(len(list_0), "::", len(list_1), "::", len(list_2))
-        # p
+   
         for i in range(0,5):
             train_idxs=[]
 
@@ -191,9 +159,7 @@ def get_idxs():
 
             dict_users[client_id]=train_idxs
             dict_users_test[client_id]=test_list
-           
-            print("data id: ", data_id, "client_id: ", client_id)
-            print(len(list_0), "::", len(list_1), "::", len(list_2))
+       
             client_id+=1
            
 

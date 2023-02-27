@@ -412,13 +412,12 @@ def evaluate_server(fx_client, y, idx, len_batch, ell):
             if l_epoch_check:
                 l_epoch_check = False
 
-                clr=classification_report(np.array(targets), np.array(outputs), output_dict=True)
+                clr=classification_report(np.array(targets), np.array(outputs), output_dict=True, zero_division=0)
                 # macro_avg_f1_3classes.append((clr[str(idx)]['f1-score']+clr[str((idx+1)%10)]['f1-score'])/2)
                 curr_f1=(clr[str(idx)]['f1-score']+clr[str((idx+1)%10)]['f1-score'])/2
                 macro_avg_f1_3classes.append(curr_f1)
                 macro_avg_f1_dict[idx]=curr_f1
-                if(ell==0):
-                    print(classification_report(np.array(targets), np.array(outputs)))
+               
                 targets=[]
                 outputs=[]
                 
@@ -453,7 +452,7 @@ def evaluate_server(fx_client, y, idx, len_batch, ell):
                         max_f1=f1_avg_all_user
                         max_epoch=ell
 
-                    print("MAX F1: ", max_f1, "MAX EPOCh: ", max_epoch)
+                    
                 else:
                     if(acc_avg_all_user> max_accuracy):
                         max_accuracy=acc_avg_all_user
@@ -626,14 +625,14 @@ if __name__ == "__main__":
 
     
     train_full_dataset, test_full_dataset, input_channels = datasets.load_full_dataset(dataset, "data", num_users, args.datapoints, False)
-    print("full set: ", len(train_full_dataset))
+    
     #----------------------------------------------------------------
     if(args.setting=='setting4'):
         dict_users = dataset_iid(train_full_dataset, num_users)
         dict_users_test = dataset_iid(test_full_dataset, num_users)
     else:
         dict_users , dict_users_test = dataset_settings.get_dicts(train_full_dataset, test_full_dataset, num_users, args.setting, args.datapoints)
-    print(args.datapoints)
+   
 
   
   
@@ -688,7 +687,10 @@ if __name__ == "__main__":
 
     et = time.time()
     print(f"Total time taken is {(et-st)/60} mins")
-    print("Maximum Average Test Accuracy: ", max(acc_test_collect))
+    if(args.setting=='setting2'):
+        print("Maximum F1 Score: ", max_f1)
+    else:
+        print("Maximum Test Accuracy: ", max_accuracy)
        
 
     #===============================================================================

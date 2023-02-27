@@ -124,9 +124,6 @@ def parse_arguments():
     args = parser.parse_args()
     return args
 
-
-
-
 def plot_class_distribution(clients,  client_ids):
     class_distribution=dict()
     number_of_clients=len(client_ids)
@@ -361,9 +358,6 @@ def train_server(fx_client, y, l_epoch_count, l_epoch, idx, len_batch):
         batch_acc_train = []
         batch_loss_train = []
         count1 = 0
-        
-        prRed('Client{} Train => Local Epoch: {} \tAcc: {:.3f} \tLoss: {:.4f}'.format(idx, l_epoch_count, acc_avg_train, loss_avg_train))
-        
                 
         # If one local epoch is completed, after this a new client will come
         if l_epoch_count == l_epoch-1:
@@ -411,7 +405,7 @@ def evaluate_server(fx_client, y, idx, len_batch, ell):
     global net_glob_server, criterion, batch_acc_test, batch_loss_test
     global loss_test_collect, acc_test_collect, count2, num_users, acc_avg_train_all, loss_avg_train_all, l_epoch_check, fed_check
     global loss_test_collect_user, acc_test_collect_user,acc_test_collect_user1, acc_test_collect_user2, acc_avg_all_user_train, loss_avg_all_user_train
-    global targets, outputs, mycount, max_f1, max_epoch, macro_avg_f1_3classes, macro_avg_f1_dict
+    global targets, outputs, mycount, max_f1, max_epoch, macro_avg_f1_3classes, macro_avg_f1_dict, max_accuracy, max_c0_4_test, max_c0_f1, max_c5_9_test, max_c5_f1, max_train_accuracy
     
     net_glob_server.eval()
   
@@ -446,18 +440,16 @@ def evaluate_server(fx_client, y, idx, len_batch, ell):
             batch_loss_test = []
             count2 = 0
             
-            prGreen('Client{} Test =>                   \tAcc: {:.3f} \tLoss: {:.4f}'.format(idx, acc_avg_test, loss_avg_test))
             
             # if a local epoch is completed   
             if l_epoch_check:
                 l_epoch_check = False
                 
-                clr=classification_report(np.array(targets), np.array(outputs), output_dict=True)
+                clr=classification_report(np.array(targets), np.array(outputs), output_dict=True, zero_division=0)
                 curr_f1=(clr['0']['f1-score']+clr['1']['f1-score']+clr['2']['f1-score'])/3
                 macro_avg_f1_3classes.append(curr_f1)
                 macro_avg_f1_dict[idx]=curr_f1
-                if(ell==0):
-                    print(classification_report(np.array(targets), np.array(outputs)))
+                
                 targets=[]
                 outputs=[]
                
@@ -498,22 +490,24 @@ def evaluate_server(fx_client, y, idx, len_batch, ell):
                 macro_avg_f1_3classes=[]
                 
                               
-                print("====================== SERVER V1==========================")
-                print(' Train: Round {:3d}, Avg Accuracy {:.3f} | Avg Loss {:.3f}'.format(ell, acc_avg_all_user_train, loss_avg_all_user_train))
-                print(' Test: Round {:3d}, Avg Accuracy {:.3f} | Avg Loss {:.3f} | F1 Score:{:.3f}'.format(ell, acc_avg_all_user, loss_avg_all_user, f1_avg_all_user))
+                # print("====================== SERVER V1==========================")
+                # print(' Train: Round {:3d}, Avg Accuracy {:.3f} | Avg Loss {:.3f}'.format(ell, acc_avg_all_user_train, loss_avg_all_user_train))
+                # print(' Test: Round {:3d}, Avg Accuracy {:.3f} | Avg Loss {:.3f} | F1 Score:{:.3f}'.format(ell, acc_avg_all_user, loss_avg_all_user, f1_avg_all_user))
                
-                print("==========================================================")
-                if(f1_avg_all_user> max_f1):
-                    max_f1=f1_avg_all_user
+                # print("==========================================================")
+                print(f'\rEpoch: {ell}', end='')
+
+                # if(macro_avg_f1_dict[0] >  max_c0_f1):
+                if(acc_avg_all_user> max_accuracy):
+                    max_accuracy=acc_avg_all_user
+                    max_train_accuracy=acc_avg_all_user_train
                     max_epoch=ell
-                    print("MAX F1: ", max_f1, "MAX EPOCh: ", max_epoch)
-                print(macro_avg_f1_dict)
+                    max_c0_f1=macro_avg_f1_dict[0]
+                    max_c5_f1=macro_avg_f1_dict[5]
+                    max_c0_4_test=acc_avg_all_user1
+                    max_c5_9_test=acc_avg_all_user2
 
-                macro_avg_f1_dict={}
-
-         
-
-             
+                macro_avg_f1_dict={}    
          
     return 
 
@@ -577,7 +571,7 @@ class Client(object):
                 optimizer_client.step()
                             
             
-            #prRed('Client{} Train => Epoch: {}'.format(self.idx, ell))
+         
            
         return net.state_dict() 
     
@@ -593,8 +587,6 @@ class Client(object):
                 
                 # Sending activations to server 
                 evaluate_server(fx, labels, self.idx, len_batch, ell)
-            
-            #prRed('Client{} Test => Epoch: {}'.format(self.idx, ell))
             
         return          
 
@@ -635,18 +627,14 @@ if __name__ == "__main__":
     torch.manual_seed(SEED)
     torch.cuda.manual_seed(SEED)    
 
-    # To print in color -------test/train of the client side
-    def prRed(skk): print("\033[91m {}\033[00m" .format(skk)) 
-    def prGreen(skk): print("\033[92m {}\033[00m" .format(skk))     
+        
 
 
     net_glob_client = ResNet18_client_side(input_channels)
-    net_glob_client.to(device)
-    print(net_glob_client)    
+    net_glob_client.to(device)  
 
     net_glob_server = ResNet18_server_side(Baseblock, [2,2,2], no_classes) 
-    net_glob_server.to(device)
-    print(net_glob_server)      
+    net_glob_server.to(device)      
 
     #===================================================================================
     # For Server Side Loss and Accuracy 
@@ -678,6 +666,13 @@ if __name__ == "__main__":
     macro_avg_f1_dict={}
     max_f1=0
     max_epoch=0
+    max_accuracy=0
+    max_train_accuracy=0
+    max_c0_4_test=0
+    max_c0_f1=0
+    max_c5_9_test=0
+    max_c5_f1=0
+
     targets=[]
     outputs=[]
     mycount=0
@@ -728,9 +723,7 @@ if __name__ == "__main__":
             # plot_class_distribution(clients, client_ids) 
         # Ater serving all clients for its local epochs------------
         # Federation process at Client-Side------------------------
-        print("------------------------------------------------------------")
-        print("------ Fed Server: Federation process at Client-Side -------")
-        print("------------------------------------------------------------")
+      
         w_glob_client = FedAvg(w_locals_client)   
         
         # Update client-side global model 
@@ -742,13 +735,22 @@ if __name__ == "__main__":
 
     #===============================================================================
     # Save output data to .excel file (we use for comparision plots)
+    et = time.time()
+    print(f"Total time taken is {(et-st)/60} mins")
+    print("Training and Evaluation completed!")  
+    print(f"\nTime taken for this run {(et - st)/60} mins")
+    print(f'Maximum Personalized Average Test Acc: {max_accuracy}  ')
+    print(f'Maximum Personalized Average Train Acc: {max_train_accuracy}  ')
+    print(f'Client0 F1 Scores: {max_c0_f1}')
+    print(f'Client5 F1 Scores:{max_c5_f1}')
+    print(f'Personalized Average Test Accuracy for Clients 0 to 4 ": {max_c0_4_test}')
+    print(f'Personalized Average Test Accuracy for Clients 5 to 9": {max_c5_9_test}')  
     round_process = [i for i in range(1, len(acc_train_collect)+1)]
     df = DataFrame({'round': round_process,'acc_train':acc_train_collect, 'acc_test':acc_test_collect})     
     file_name = f"results/SFLv2/{program}_{args.batch_size}_{args.dataset}_{args.lr}_{args.epochs}"+".xlsx"    
     df.to_excel(file_name, sheet_name= "v1_test", index = False)     
 
-    et = time.time()
-    print(f"Total time taken is {(et-st)/60} mins")
+ 
     #=============================================================================
     #                         Program Completed
     #=============================================================================

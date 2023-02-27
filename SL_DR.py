@@ -171,31 +171,6 @@ from sklearn.metrics import roc_curve, auc, roc_auc_score
 
 
 
-# function for scoring roc auc score for multi-class
-
-def multiclass_roc_auc_score(y_test, y_pred, epoch, average="macro"):
-    
-    target= ['airplane', 'automobile', 'bird', 'cat', 'deer',
-              'dog', 'frog', 'horse', 'ship', 'truck']
-
-    # set plot figure size
-    fig, c_ax = plt.subplots(1,1, figsize = (12, 8))
-    lb = LabelBinarizer()
-    lb.fit(y_test)
-    y_test = lb.transform(y_test)
-    y_pred = lb.transform(y_pred)
-
-    for (idx, c_label) in enumerate(target):
-        fpr, tpr, thresholds = roc_curve(y_test[:,idx].astype(int), y_pred[:,idx])
-        c_ax.plot(fpr, tpr, label = '%s (AUC:%0.2f)'  % (c_label, auc(fpr, tpr)))
-    c_ax.plot(fpr, fpr, 'b-', label = 'Random Guessing')
-    c_ax.legend()
-    c_ax.set_xlabel('False Positive Rate')
-    c_ax.set_ylabel('True Positive Rate')
-    # plt.show()
-    plt.savefig(f'curve_sflv2_epoch_{epoch}')
-    # print(classification_report(pred_t, target_t))
-    return roc_auc_score(y_test, y_pred, average=average)
 #=====================================================================================================
 #                           Client-side Model definition
 #=====================================================================================================
@@ -376,7 +351,7 @@ def train_server(fx_client, y, l_epoch_count, l_epoch, idx, len_batch):
         batch_loss_train = []
         count1 = 0
         
-        prRed('Client{} Train => Local Epoch: {} \tAcc: {:.3f} \tLoss: {:.4f}'.format(idx, l_epoch_count, acc_avg_train, loss_avg_train))
+        
         
                 
         # If one local epoch is completed, after this a new client will come
@@ -387,7 +362,7 @@ def train_server(fx_client, y, l_epoch_count, l_epoch, idx, len_batch):
             # we store the last accuracy in the last batch of the epoch and it is not the average of all local epochs
             # this is because we work on the last trained model and its accuracy (not earlier cases)
             
-            #print("accuracy = ", acc_avg_train)
+        
             acc_avg_train_all = acc_avg_train
             loss_avg_train_all = loss_avg_train
                         
@@ -398,7 +373,7 @@ def train_server(fx_client, y, l_epoch_count, l_epoch, idx, len_batch):
             # collect the id of each new user                        
             if idx not in idx_collect:
                 idx_collect.append(idx) 
-                #print(idx_collect)
+          
         
         # This is to check if all users are served for one round --------------------
         if len(idx_collect) == num_users:
@@ -425,7 +400,7 @@ def evaluate_server(fx_client, y, idx, len_batch, ell):
     global net_glob_server, criterion, batch_acc_test, batch_loss_test
     global loss_test_collect, acc_test_collect, count2, num_users, acc_avg_train_all, loss_avg_train_all, l_epoch_check, fed_check
     global loss_test_collect_user, acc_test_collect_user,acc_test_collect_user1, acc_test_collect_user2, acc_avg_all_user_train, loss_avg_all_user_train
-    global targets, outputs, mycount, max_f1, max_epoch, macro_avg_f1_3classes, macro_avg_f1_dict
+    global targets, outputs, mycount, max_f1, max_epoch, macro_avg_f1_3classes, macro_avg_f1_dict, max_accuracy, max_c0_4_test, max_c0_f1, max_c5_9_test, max_c5_f1, max_train_accuracy
 
     net_glob_server.eval()
   
@@ -459,18 +434,16 @@ def evaluate_server(fx_client, y, idx, len_batch, ell):
             batch_loss_test = []
             count2 = 0
             
-            prGreen('Client{} Test =>                   \tAcc: {:.3f} \tLoss: {:.4f}'.format(idx, acc_avg_test, loss_avg_test))
-            
+      
             # if a local epoch is completed   
             if l_epoch_check:
                 l_epoch_check = False
-                clr=classification_report(np.array(targets), np.array(outputs), output_dict=True)
+                clr=classification_report(np.array(targets), np.array(outputs), output_dict=True, zero_division=0)
                 # macro_avg_f1_3classes.append((clr[str(idx)]['f1-score']+clr[str((idx+1)%10)]['f1-score'])/2)
                 curr_f1=(clr['0']['f1-score']+clr['1']['f1-score']+clr['2']['f1-score'])/3
                 macro_avg_f1_3classes.append(curr_f1)
                 macro_avg_f1_dict[idx]=curr_f1
-                if(ell==0):
-                    print(classification_report(np.array(targets), np.array(outputs)))
+             
                 targets=[]
                 outputs=[]
                
@@ -507,20 +480,41 @@ def evaluate_server(fx_client, y, idx, len_batch, ell):
                 acc_test_collect_user = []
                 acc_test_collect_user1= []
                 acc_test_collect_user2 = []
-                loss_test_collect_user= []
-                macro_avg_f1_3classes=[]
+                loss_test_collect_user = []
+                macro_avg_f1_3classes = []
                 
                               
-                print("====================== SERVER V1==========================")
-                print(' Train: Round {:3d}, Avg Accuracy {:.3f} | Avg Loss {:.3f}'.format(ell, acc_avg_all_user_train, loss_avg_all_user_train))
-                print(' Test: Round {:3d}, Avg Accuracy {:.3f} | Avg Loss {:.3f} | F1 Score:{:.3f}'.format(ell, acc_avg_all_user, loss_avg_all_user, f1_avg_all_user))
-                # print(' ')
-                print("==========================================================")
-                if(f1_avg_all_user> max_f1):
-                    max_f1=f1_avg_all_user
+                # print("====================== SERVER V1==========================")
+                # print(' Train: Round {:3d}, Avg Accuracy {:.3f} | Avg Loss {:.3f}'.format(ell, acc_avg_all_user_train, loss_avg_all_user_train))
+                # print(' Test: Round {:3d}, Avg Accuracy {:.3f} | Avg Loss {:.3f} | F1 Score:{:.3f}'.format(ell, acc_avg_all_user, loss_avg_all_user, f1_avg_all_user))
+            
+                # print("==========================================================")
+
+                print(f'\rEpoch: {ell}', end='')
+
+                
+
+                # if(macro_avg_f1_dict[0] >  max_c0_f1):
+                if(acc_avg_all_user> max_accuracy):
+                    max_accuracy=acc_avg_all_user
+                    max_train_accuracy=acc_avg_all_user_train
                     max_epoch=ell
-                    print("MAX F1: ", max_f1, "MAX EPOCh: ", max_epoch)
-                print(macro_avg_f1_dict)
+                    max_c0_f1=macro_avg_f1_dict[0]
+                    max_c5_f1=macro_avg_f1_dict[5]
+                    max_c0_4_test=acc_avg_all_user1
+                    max_c5_9_test=acc_avg_all_user2
+                # print(macro_avg_f1_dict)
+            #     wandb.log({
+            #     "Epoch": ell,
+            #     "Client0_F1 Scores": macro_avg_f1_dict[0],
+               
+            #     "Client5_F1_Scores":macro_avg_f1_dict[5],
+            #     "Personalized Average Train Accuracy": acc_avg_all_user_train,
+            #     "Personalized Average Test Accuracy": acc_avg_all_user,  
+            #     "Personalized Average Test Accuracy 1": acc_avg_all_user1, 
+            #     "Personalized Average Test Accuracy 2": acc_avg_all_user2, 
+            # })
+
 
                 macro_avg_f1_dict={}
 
@@ -549,8 +543,7 @@ class Client(object):
         self.device = device
         self.lr = lr
         self.local_ep = 1 
-        #self.selected_clients = []4
-        # print("client_idx is : ", client_idx)
+       
         if(client_idx>=0 and client_idx<=4 ):
             train_data_id=1
             test_data_id=3
@@ -588,7 +581,7 @@ class Client(object):
                 optimizer_client.step()
                             
             
-            #prRed('Client{} Train => Epoch: {}'.format(self.idx, ell))
+         
            
         return net.state_dict() 
     
@@ -605,7 +598,7 @@ class Client(object):
                 # Sending activations to server 
                 evaluate_server(fx, labels, self.idx, len_batch, ell)
             
-            #prRed('Client{} Test => Epoch: {}'.format(self.idx, ell))
+          
             
         return   
 
@@ -658,20 +651,17 @@ if __name__ == "__main__":
     torch.manual_seed(SEED)
     torch.cuda.manual_seed(SEED)
 
-    # To print in color -------test/train of the client side
-    def prRed(skk): print("\033[91m {}\033[00m" .format(skk)) 
-    def prGreen(skk): print("\033[92m {}\033[00m" .format(skk))   
+    
 
 
 
     net_glob_client = ResNet18_client_side(input_channels)
     net_glob_client.to(device)
-    print(net_glob_client)     
-
+   
 
     net_glob_server = ResNet18_server_side(Baseblock, [2,2,2], no_classes) 
     net_glob_server.to(device)
-    print(net_glob_server)      
+    
 
     #===================================================================================
     # For Server Side Loss and Accuracy 
@@ -704,6 +694,12 @@ if __name__ == "__main__":
     macro_avg_f1_dict={}
     max_epoch=0
     max_f1=0
+    max_accuracy=0
+    max_train_accuracy=0
+    max_c0_4_test=0
+    max_c0_f1=0
+    max_c5_9_test=0
+    max_c5_f1=0
     targets=[]
     outputs=[]
 
@@ -735,8 +731,6 @@ if __name__ == "__main__":
 
         # Sequential training/testing among clients      
         for idx in idxs_users:
-            print("idx: ",idx)
-            print(len(dict_users[idx]), ":::::",len(dict_users_test[idx]))
             local = Client(net_glob_client, idx, lr, device, client_idx=idx, idxs = dict_users[idx], idxs_test = dict_users_test[idx])
             # Training ------------------
             w_client = local.train(net = copy.deepcopy(net_glob_client).to(device))
@@ -754,8 +748,15 @@ if __name__ == "__main__":
     #===================================================================================     
 
     et = time.time()
-    print("Training and Evaluation completed!")    
-    print(f"Time taken {(et-st)/60} mins")
+    print("Training and Evaluation completed!")  
+    print(f"\nTime taken for this run {(et - st)/60} mins")
+    print(f'Maximum Personalized Average Test Acc: {max_accuracy}  ')
+    print(f'Maximum Personalized Average Train Acc: {max_train_accuracy}  ')
+    print(f'Client0 F1 Scores: {max_c0_f1}')
+    print(f'Client5 F1 Scores:{max_c5_f1}')
+    print(f'Personalized Average Test Accuracy for Clients 0 to 4 ": {max_c0_4_test}')
+    print(f'Personalized Average Test Accuracy for Clients 5 to 9": {max_c5_9_test}')  
+   
 
     #===============================================================================
     # Save output data to .excel file (we use for comparision plots)

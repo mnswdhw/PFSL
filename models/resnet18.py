@@ -61,7 +61,7 @@ class center(nn.Module):
                     param.requires_grad = False
         
     def freeze(self, epoch, pretrained=False):
-        print("freezing the center model")
+        
        
         num_unfrozen_center_layers=0
         if pretrained:

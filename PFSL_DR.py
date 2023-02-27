@@ -26,14 +26,12 @@ import numpy as np
 from ConnectedClient import ConnectedClient
 import importlib
 from utils.merge import merge_grads, merge_weights
-import wandb
 import pandas as pd
 import time 
-from utils import dataset_settings, datasets
+from utils import get_eye_dataset
 import torch.nn.functional as F
-
-
-#To load train and test data for each client for setting 1 and setting 2
+#                                       Clients Side Program
+#==============================================================================================================
 class DatasetSplit(Dataset):
     def __init__(self, dataset, idxs):
         self.dataset = dataset
@@ -47,15 +45,26 @@ class DatasetSplit(Dataset):
         return image, label
 
 
-#To intialize every client with their train and test data for setting 4
 def initialize_client(client, dataset, batch_size, test_batch_size, tranform):
-    
-    client.load_data(dataset, transform)
+    client.load_data(args.dataset, transform)
     print(f'Length of train dataset client {client.id}: {len(client.train_dataset)}')
     client.create_DataLoader(batch_size, test_batch_size)
 
 
-#Plots class distribution of train data available to each client
+def select_random_clients(clients):
+    random_clients = {}
+    client_ids = list(clients.keys())
+    random_index = random.randint(0,len(client_ids)-1)
+    random_client_ids = client_ids[random_index]
+
+    print(random_client_ids)
+    print(clients)
+
+    for random_client_id in random_client_ids:
+        random_clients[random_client_id] = clients[random_client_id]
+    return random_clients
+
+
 def plot_class_distribution(clients, dataset, batch_size, epochs, opt, client_ids):
     class_distribution=dict()
     number_of_clients=len(client_ids)
@@ -79,9 +88,8 @@ def plot_class_distribution(clients, dataset, batch_size, epochs, opt, client_id
             j=0
     fig.tight_layout()
     plt.show()
-    wandb.log({"Histogram": wandb.Image(plt)})
     # plt.savefig(f'./results/class_vs_freq/{dataset}_{number_of_clients}clients_{epochs}epochs_{batch_size}batch_{opt}_histogram.png')  
-    plt.savefig('plot_setting3_exp.png')
+    plt.savefig('plot_setting_DR_exp.png')
 
     max_len=0
     #plot line graphs
@@ -93,44 +101,23 @@ def plot_class_distribution(clients, dataset, batch_size, epochs, opt, client_id
     plt.ylim(0, max_len)
     plt.legend()
     plt.show()
-    wandb.log({"Line graph": wandb.Image(plt)})
     # plt.savefig(f'./results/class_vs_freq/{dataset}_{number_of_clients}clients_{epochs}epochs_{batch_size}batch_{opt}_line_graph.png')
     
     return class_distribution
-
-
 
 if __name__ == "__main__":    
 
     
     args = parse_arguments()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print("Arguments provided", args)
-
-    #setup for wandb
-
-    mode = "online"
-    if args.disable_wandb:
-        mode = "disabled"
-        
-    wandb.init(entity="iitbhilai", project="Split_learning_exps", mode = mode)
-    wandb.run.name = args.opt_iden
-
-    config = wandb.config          
-    config.batch_size = args.batch_size    
-    config.test_batch_size = args.test_batch_size        
-    config.epochs = args.epochs             
-    config.lr = args.lr       
-    config.dataset = args.dataset
-    config.model = args.model
-    config.seed = args.seed
-    config.opt = args.opt_iden                              
-
+    print("Arguments provided", args)                            
 
     random.seed(args.seed)
     torch.manual_seed(args.seed)
 
     overall_test_acc = []
+    overall_test_acc1 = []
+    overall_test_acc2 = []
     overall_train_acc = []
 
     print('Generating random clients...', end='')
@@ -138,112 +125,121 @@ if __name__ == "__main__":
     client_ids = list(clients.keys())    
     print('Done')
 
-    train_dataset_size, input_channels = split_dataset(args.dataset, client_ids, pretrained=args.pretrained)
+    # train_dataset_size, input_channels = split_dataset_cifar10tl_exp(client_ids, args.datapoints)
 
     print(f'Random client ids:{str(client_ids)}')
     transform=None
     max_epoch=0
     max_f1=0
+    max_accuracy=0
+    max_train_accuracy=0
+    max_c0_4_test=0
+    max_c0_f1=0
+    max_c5_9_test=0
+    max_c5_f1=0
 
-    #Assigning train and test data to each client depending for each client
+
     print('Initializing clients...')
     
-    if(args.setting=="setting4"):
-        for _, client in clients.items():
-            (initialize_client(client, args.dataset, args.batch_size, args.test_batch_size, transform))
-    else:
-        
-        train_full_dataset, test_full_dataset, input_channels = datasets.load_full_dataset(args.dataset, "data", args.number_of_clients, args.datapoints, args.pretrained)
-        #----------------------------------------------------------------
-        dict_users , dict_users2 = dataset_settings.get_dicts(train_full_dataset, test_full_dataset, args.number_of_clients, args.setting, args.datapoints)
-
-        dict_users_test_equal=dataset_settings.get_test_dict(test_full_dataset, args.number_of_clients)
-
-        client_idx=0
-        dict_user_train=dict()
-        dict_user_test=dict()
-        client_idxs=dict()
-
-        for _, client in clients.items():
-            dict_user_train[_]=dict_users[client_idx]
-            dict_user_test[_]=dict_users2[client_idx]
-            client_idxs[_]=client_idx
-            client_idx+=1
-        for _, client in clients.items():
-            client.train_dataset=DatasetSplit(train_full_dataset, dict_user_train[_])
-            client.test_dataset=DatasetSplit(test_full_dataset, dict_user_test[_])
-            client.create_DataLoader(args.batch_size, args.test_batch_size)
-    print('Client Intialization complete.')    
-    # Train and test data intialisation complete
-
-    #Setting the start of personalisation phase
-    if(args.setting!='setting2'):
-        args.checkpoint=args.epochs+10
-
-    
-    # class_distribution=plot_class_distribution(clients, args.dataset, args.batch_size, args.epochs, args.opt_iden, client_ids)
-
-
-    #Assigning front, center and back models and their optimizers for all the clients
-    model = importlib.import_module(f'models.{args.model}')
   
+
+    d1, d2=get_eye_dataset.get_idxs()
+
+
+
+
+    input_channels=3
+ 
+
+
+
+    i=0
+    dict_user_train=dict()
+    dict_user_test=dict()
+    client_idxs=dict()
+
+    for _, client in clients.items():
+        dict_user_train[_]=d1[i]
+        dict_user_test[_]=d2[i]
+        # dict_user_test_generalized[_]=dict_users_test_equal[i%2]
+        client_idxs[_]=i
+        i+=1
+    for _, client in clients.items():
+        # client.train_dataset=DatasetSplit(train_full_dataset, dict_user_train[_])
+        client_idx=client_idxs[_]
+        if(client_idx>=0 and client_idx<=4 ):
+            train_data_id=1
+            test_data_id=3
+        elif(client_idx>=5 and client_idx<=9):
+            train_data_id=2
+            test_data_id=4
+        
+        client.train_dataset=get_eye_dataset.get_eye_data(dict_user_train[_], train_data_id)
+        client.test_dataset=get_eye_dataset.get_eye_data(dict_user_test[_], test_data_id)
+        client.create_DataLoader(args.batch_size, args.test_batch_size)
+
+
+
+
+    #class_distribution=plot_class_distribution(clients, args.dataset, args.batch_size, args.epochs, args.opt_iden, client_ids)
+    print('Client Intialization complete.')
+    model = importlib.import_module(f'models.{args.model}')
+    count=0
     for _, client in clients.items():
         client.front_model = model.front(input_channels, pretrained=args.pretrained)
         client.back_model = model.back(pretrained=args.pretrained)
+        
     print('Done')
-  
+
+
+
+
+
     for _, client in clients.items():
+
         # client.front_optimizer = optim.SGD(client.front_model.parameters(), lr=args.lr, momentum=0.9)
         # client.back_optimizer = optim.SGD(client.back_model.parameters(), lr=args.lr, momentum=0.9)
         client.front_optimizer = optim.Adam(client.front_model.parameters(), lr=args.lr)
         client.back_optimizer = optim.Adam(client.back_model.parameters(), lr=args.lr)
 
+   
+
     first_client = clients[client_ids[0]]
     num_iterations = ceil(len(first_client.train_DataLoader.dataset)/args.batch_size)
-   
-    num_test_iterations= ceil(len(first_client.test_DataLoader.dataset)/args.test_batch_size)
+    num_test_iterations_personalization = ceil(len(first_client.test_DataLoader.dataset)/args.test_batch_size)
     sc_clients = {} #server copy clients
 
     for iden in client_ids:
         sc_clients[iden] = ConnectedClient(iden, None)
-
+    
     for _,s_client in sc_clients.items():
         s_client.center_model = model.center(pretrained=args.pretrained)
+        
         s_client.center_model.to(device)
         # s_client.center_optimizer = optim.SGD(s_client.center_model.parameters(), lr=args.lr, momentum=0.9)
         s_client.center_optimizer = optim.Adam(s_client.center_model.parameters(), args.lr)
 
+
     st = time.time()
 
-    macro_avg_f1_2classes=[]
+    macro_avg_f1_3classes=[]
+    macro_avg_f1_dict={}
 
     criterion=F.cross_entropy
 
-    #logging the gradients of the models of all the three parts to wandb
-    for _, client in clients.items(): 
-        wandb.watch(client.front_model, criterion, log="all",log_freq=2) 
-        wandb.watch(client.back_model, criterion, log="all", log_freq=2)
-    for _, s_client in sc_clients.items():
-        wandb.watch(s_client.center_model, criterion, log="all", log_freq=2)
 
-    #Starting the training process 
     for epoch in range(args.epochs):
-        if(epoch==args.checkpoint): # When starting epoch of the perosnalisation is reached, freeze all the layers of the center model 
-            for _, s_client in sc_clients.items():
-                s_client.center_model.freeze(epoch, pretrained=True)
+
 
         overall_train_acc.append(0)
-
-
         for _, client in clients.items():
             client.train_acc.append(0)
             client.iterator = iter(client.train_DataLoader)
             
-        #For every batch in the current epoch
+            
         for iteration in range(num_iterations):
             print(f'\rEpoch: {epoch+1}, Iteration: {iteration+1}/{num_iterations}', end='')
 
-            
             for _, client in clients.items():
                 client.forward_front()
 
@@ -265,33 +261,24 @@ if __name__ == "__main__":
                 client.remote_activations2 = clients[client_id].remote_activations2
                 client.backward_center()
 
+
             for _, client in clients.items():
                 client.step_back()
                 client.zero_grad_back()
-
-            #merge grads uncomment below
-
-            # if epoch%2 == 0:
-            #     params = []
-            #     normalized_data_sizes = []
-            #     for iden, client in clients.items():
-            #         params.append(sc_clients[iden].center_model.parameters())
-            #         normalized_data_sizes.append(len(client.train_dataset) / train_dataset_size)
-            #     merge_grads(normalized_data_sizes, params)
 
             for _, client in sc_clients.items():
                 client.center_optimizer.step()
                 client.center_optimizer.zero_grad()
 
             for _, client in clients.items():
-                client.train_acc[-1] += client.calculate_train_acc() #train accuracy of every client in the current epoch in the current batch
+                client.train_acc[-1] += client.calculate_train_acc()
 
         for c_id, client in clients.items():
-            client.train_acc[-1] /= num_iterations # train accuracy of every client of all the batches in the current epoch
-            overall_train_acc[-1] += client.train_acc[-1] 
+            client.train_acc[-1] /= num_iterations
+            overall_train_acc[-1] += client.train_acc[-1]
 
-        overall_train_acc[-1] /= len(clients) #avg train accuracy of all the clients in the current epoch
-        print(f' Personalized Average Train Acc: {overall_train_acc[-1]}')
+        overall_train_acc[-1] /= len(clients)
+      
 
         # merge weights below uncomment 
         params = []
@@ -303,34 +290,33 @@ if __name__ == "__main__":
             client.center_model.load_state_dict(w_glob)
 
         params = []
+        # if(epoch <=args.checkpoint):
+        for _, client in clients.items():
+            params.append(copy.deepcopy(client.back_model.state_dict()))
+        w_glob_cb = merge_weights(params)
 
-        #In the personalisation phase merging of weights of the back layers is stopped
-        if(epoch <=args.checkpoint):
-            for _, client in clients.items():
-                params.append(copy.deepcopy(client.back_model.state_dict()))
-            w_glob_cb = merge_weights(params)
-            del params
-    
-            for _, client in clients.items():
-                client.back_model.load_state_dict(w_glob_cb)
+        for _, client in clients.items():
+            client.back_model.load_state_dict(w_glob_cb)
 
-        #Testing every epoch
+
+
+        # Testing on every 5th epoch
+        
         if (epoch%1 == 0 ):
-            if(epoch==args.checkpoint):
-                for _, s_client in sc_clients.items():
-                    s_client.center_model.freeze(epoch, pretrained=True)
+
             with torch.no_grad():
                 test_acc = 0
                 overall_test_acc.append(0)
-            
+                overall_test_acc1.append(0)
+                overall_test_acc2.append(0)
+
+                # for 
                 for _, client in clients.items():
                     client.test_acc.append(0)
                     client.iterator = iter(client.test_DataLoader)
                     client.pred=[]
                     client.y=[]
-
-                #For every batch in the testing phase
-                for iteration in range(num_test_iterations):
+                for iteration in range(num_test_iterations_personalization):
     
                     for _, client in clients.items():
                         client.forward_front()
@@ -346,38 +332,41 @@ if __name__ == "__main__":
                     for _, client in clients.items():
                         client.test_acc[-1] += client.calculate_test_acc()
 
-
                 for _, client in clients.items():
-                    client.test_acc[-1] /= num_test_iterations
+                    client.test_acc[-1] /= num_test_iterations_personalization
                     overall_test_acc[-1] += client.test_acc[-1]
-                    #Calculating the F1 scores using the classification report from sklearn metrics
-                    if(args.setting=='setting2'):
-                        clr=classification_report(np.array(client.y), np.array(client.pred), output_dict=True)
-                        idx=client_idxs[_]
+                    idx=client_idxs[_]
+                    if(idx>=0 and idx<5):
+                        overall_test_acc1[-1] += client.test_acc[-1]
+                    elif(idx>=5 and idx<10):
+                        overall_test_acc2[-1] += client.test_acc[-1]
+               
+                    clr=classification_report(np.array(client.y), np.array(client.pred), output_dict=True, zero_division=0)
+                    
+                    
+                    curr_f1=(clr['0']['f1-score']+clr['1']['f1-score']+clr['2']['f1-score'])/3
+                    macro_avg_f1_3classes.append(curr_f1)
+                    macro_avg_f1_dict[idx]=curr_f1
+                  
+                overall_test_acc[-1] /= len(clients)
+                overall_test_acc1[-1] /=5
+                overall_test_acc2[-1] /= 5
 
-                        macro_avg_f1_2classes.append((clr[str(idx)]['f1-score']+clr[str((idx+1)%10)]['f1-score'])/2) #macro f1 score of the 2 prominent classes in setting2
-                        
-                
-                overall_test_acc[-1] /= len(clients) #average test accuracy of all the clients in the current epoch
-
-                if(args.setting=='setting2'):
-                    f1_avg_all_user=sum(macro_avg_f1_2classes)/len(macro_avg_f1_2classes) #average f1 scores of the clients for the prominent 2 classes in the current epoch
-                    macro_avg_f1_2classes=[]
-                    print(f' Personalized Average Test Acc: {overall_test_acc[-1]}  f1 score: {f1_avg_all_user} ')
-
-                    #Noting the maximum f1 score
-                    if(f1_avg_all_user> max_f1):
-                        max_f1=f1_avg_all_user
-                        max_epoch=epoch
-                else:
-                    print(f' Personalized Average Test Acc: {overall_test_acc[-1]}   ')
-            
+                f1_avg_all_user=sum(macro_avg_f1_3classes)/len(macro_avg_f1_3classes)
+                macro_avg_f1_3classes=[]
+  
+                if(overall_test_acc[-1] >  max_accuracy):
+                    max_accuracy=overall_test_acc[-1]
+                    max_train_accuracy=overall_train_acc[-1]
+                    max_epoch=epoch
+                    max_c0_f1=macro_avg_f1_dict[0]
+                    max_c5_f1=macro_avg_f1_dict[5]
+                    max_c0_4_test=overall_test_acc1[-1]
+                    max_c5_9_test=overall_test_acc2[-1]
+               
         
-            wandb.log({
-                "Epoch": epoch,
-                "Personalized Average Train Accuracy": overall_train_acc[-1],
-                "Personalized Average Test Accuracy": overall_test_acc[-1],  
-            })
+   
+            macro_avg_f1_dict={}
 
     timestamp = int(datetime.now().timestamp())
     plot_config = f'''dataset: {args.dataset},
@@ -386,11 +375,16 @@ if __name__ == "__main__":
                     '''
 
     et = time.time()
+    print(f"\nTime taken for this run {(et - st)/60} mins")
     print(f"Time taken for this run {(et - st)/60} mins")
-    wandb.log({"time taken by program in mins": (et - st)/60})
+    print(f'Maximum Personalized Average Test Acc: {max_accuracy}  ')
+    print(f'Maximum Personalized Average Train Acc: {max_train_accuracy}  ')
+    print(f'Client0 F1 Scores: {max_c0_f1}')
+    print(f'Client5 F1 Scores:{max_c5_f1}')
+    print(f'Personalized Average Test Accuracy for Clients 0 to 4 ": {max_c0_4_test}')
+    print(f'Personalized Average Test Accuracy for Clients 5 to 9": {max_c5_9_test}')
 
 
-    # calculating the train and test standarad deviation and teh confidence intervals 
     X = range(args.epochs)
     all_clients_stacked_train = np.array([client.train_acc for _,client in clients.items()])
     all_clients_stacked_test = np.array([client.test_acc for _,client in clients.items()])
@@ -413,27 +407,24 @@ if __name__ == "__main__":
     plt.figure(0)
     plt.plot(X, Y_train)
     plt.fill_between(X,Y_train_lower , Y_train_upper, color='blue', alpha=0.25)
-    # plt.savefig(f'./results/test_acc_vs_epoch/{args.dataset}_{args.number_of_clients}clients_{args.epochs}epochs_{args.batch_size}batch_{args.opt}.png', bbox_inches='tight')
+    # plt.savefig(f'./results/train_acc_vs_epoch/{args.dataset}_{args.number_of_clients}clients_{args.epochs}epochs_{args.batch_size}batch_{args.opt}.png', bbox_inches='tight')
     plt.show()
-    wandb.log({"train_plot": wandb.Image(plt)})
+
 
     plt.figure(1)
     plt.plot(X, Y_test)
     plt.fill_between(X,Y_test_lower , Y_test_upper, color='blue', alpha=0.25)
     # plt.savefig(f'./results/test_acc_vs_epoch/{args.dataset}_{args.number_of_clients}clients_{args.epochs}epochs_{args.batch_size}batch_{args.opt}.png', bbox_inches='tight')
-    # plt.savefig('confidence_plot2')
     plt.show()
-    wandb.log({"test_plot": wandb.Image(plt)})
 
     plt.figure(2)
     plt.plot(X, Y_train_cv)
     plt.show()
-    wandb.log({"train_cv": wandb.Image(plt)})
 
     plt.figure(3)
     plt.plot(X, Y_test_cv)
     plt.show()
-    # plt.savefig('confidence_plot.png')
-    wandb.log({"test_cv": wandb.Image(plt)})
 
 
+
+    

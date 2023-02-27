@@ -219,7 +219,7 @@ class LocalUpdate(object):
             epoch_loss.append(sum(batch_loss)/len(batch_loss))
             epoch_acc.append(sum(batch_acc)/len(batch_acc))
 
-            clr=classification_report(np.array(targets), np.array(outputs), output_dict=True)
+            clr=classification_report(np.array(targets), np.array(outputs), output_dict=True, zero_division=0)
            
             curr_f1=(clr[str(idx)]['f1-score']+clr[str((idx+1)%10)]['f1-score'])/2
             macro_avg_f1_3classes.append(curr_f1)
@@ -463,7 +463,7 @@ if __name__ == "__main__":
 
     net_glob = ResNet18(BasicBlock, [2, 2, 2, 2],input_channels, no_classes) 
     net_glob.to(device)
-    print(net_glob)   
+  
     
     
     net_glob.train()
@@ -565,7 +565,10 @@ if __name__ == "__main__":
     print("Training and Evaluation completed!")    
     et = time.time()
     print(f"Total time taken is {(et-st)/60} mins")
-    print("Maximum Average Test Accuracy: ", max(acc_test_collect))
+    if(args.setting=='setting2'):
+        print("Max F1 Score: ", max_f1)
+    else:
+        print("Max test accuracy of unique client is: ", max_accuracy)
     #===============================================================================
     # Save output data to .excel file (we use for comparision plots)
 
