@@ -41,7 +41,7 @@ Eg- `conda activate pfsl`
 ### Parameters
 The parameters options for a particular file can be checked adding -–help argument.
 <br/>Optional arguments available for PFSL are:
-* -h, –help show this help message and exit
+* -h, --help show this help message and exit
 * -c, -–number of clients Number of Clients (default: 10)
 * -b, -–batch_size Batch size (default: 128)
 * –-test_batch_size Input batch size for testing (default: 128)
@@ -73,13 +73,17 @@ Below we state the commands for running PFSL, SL, FL, SFLv1 and SFLv2 for all th
 
 <details> <summary><b>Setting 1: Small Sample Size (Equal), i.i.d.</b></summary>
 <p> In this scenario, each client has a very small number of labelled data points ranging from 50 to 500, and all these samples are distributed identically across clients. There is no class imbalance in training data of each client. To run all the algorithms for setting 1 argument –-setting setting1 and –-datapoints [number of sample per client] has to be added. 
-Rest of the arguments can be selected as per choice.
+Rest of the arguments can be selected as per choice. Numberof data samples can be chosen from 50, 150, 250, 350 and 500 to reproduce the results. When total data sample size was
+50, batch size was chosen to be 32 and for other data samples
+greater than 50 batch size was kept at 64. Test batch size was
+always taken to be 512. For data sample 150, command are
+given below.
 
-* `python PFSL_Setting124.py  -–dataset cifar10 –-setting [setting] --datapoints [number of data samples] --pretrained --model resnet18 -c 10`
-* `python FL.py --dataset cifar10 --setting setting1 --datapoints [number of data samples] -c 10`
-* `python SL.py --dataset cifar10 --setting setting1 --datapoints [number of data samples] -c 10`
-* `python SFLv1.py --dataset cifar10 --setting setting1 --datapoints [number of data samples] -c 10`
-* `python SFLv2.py --dataset cifar10 --setting setting1 --datapoints [number of data samples] -c 10`
+* `python PFSL_Setting124.py --dataset cifar10 --setting setting1 --datapoints 150 --pretrained --model resnet18 -c 10 --batch_size 64 --test batch_size 512 --epochs 100`
+* `python FL.py --dataset cifar10 --setting setting1 --datapoints 150 -c 10 --batch_size 64 --test_batch_size 512 --epochs 100`
+* `python SL.py --dataset cifar10 --setting setting1 --datapoints 150 -c 10 --batch_size 64 --test_batch_size 512 --epochs 100`
+* `python SFLv1.py --dataset cifar10 --setting setting1 --datapoints 150 -c 10 --batch_size 64 --test_batch_size 512 --epochs 100`
+* `python SFLv2.py --dataset cifar10 --setting setting1 --datapoints 150 -c 10 --batch_ize 64 --test_batch_size 512 --epochs 100`
 
 </p></details>
 
@@ -96,6 +100,8 @@ Rest of the arguments can be selected as per choice.
 * `python SL.py --dataset cifar10 --setting setting2 -c 10`
 * `python SFLv1.py --dataset cifar10 --setting setting2 -c 10`
 * `python SFLv2.py --dataset cifar10 --setting setting2 -c 10`
+
+
   
 </p>
 </details>
@@ -160,18 +166,32 @@ same disease. We have used two datasets EyePACS and APTOS whose references are g
 * Source of Dataset 1, https://www.kaggle.com/competitions/aptos2019-blindness-detection/data
 * Source of Dataset 2, https://www.kaggle.com/datasets/mariaherrerot/eyepacspreprocess
 
-To preprocess the dataset download and store the unzipped files in data/eye_dataset1 folder and data/eye_dataset2 folder. Once verify the directory paths of the unzipped folders in the preprocess_eye_dataset_1.py and preprocess_eye_dataset_2.py files.
+To preprocess the dataset download and store the unzipped files in data/eye dataset1 folder and data/eye dataset2 folder.
+For this create directories using the command:
+* `mkdir data/eye_dataset1`
+* `mkdir data/eye_dataset2`
+<br/>
+The directory structure of data is as follows:
+<br/>
+* data/eye_dataset1/train_images
+* data/eye_dataset1/test_images
+* data/eye_dataset1/test.csv
+* data/eye_dataset1/train.csv
+* data/eye_dataset2/eyepacs_preprocess/eyepacs_preprocess/
+* data/eye_dataset2/trainLabels.csv
+
+Once verify the path of the unzipped folders in the load data function of preprocess_eye_dataset_1.py and preprocess_eye_dataset_2.py files.
 
 For Data preprocessing, run the commands mentioned below
 for both the datasets <br/>
 `python utils/preprocess_eye_dataset_1.py`  <br/>
 `python utils/preprocess_eye_dataset 2.py`
 
-* `python PFSL_DR.py --pretrained --model resnet18 -c 10`
-* `python FL_DR.py -c 10`
-* `python SL_DR.py -c 10`
-* `python SFLv1_DR.py -c 10`
-* `python SFLv2_DR.py -c 10`
+* `python PFSL_DR.py --pretrained --model resnet18 -c 10 --batch_size 64 --test_batch_size 512 --epochs 100`
+* `python FL_DR.py -c 10 --batch_size 64--test_batch_size 512 --epochs 100`
+* `python SL_DR.py --batch_size 64 --test batch_size 512 --epochs 100`
+* `python SFLv1_DR.py --batch_size 64 --test_batch_size 512 --epochs 100`
+* `python SFLv2_DR.py --batch_size 64 --test_batch_size 512 --epochs 100`
 </p>
 </details>
 
