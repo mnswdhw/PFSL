@@ -179,12 +179,12 @@ For this create directories using the command:
 <br/>
 The directory structure of data is as follows:
 <br/>
-* data/eye_dataset1/train_images
-* data/eye_dataset1/test_images
-* data/eye_dataset1/test.csv
-* data/eye_dataset1/train.csv
-* data/eye_dataset2/eyepacs_preprocess/eyepacs_preprocess/
-* data/eye_dataset2/trainLabels.csv
+* `data/eye_dataset1/train_images`
+* `data/eye_dataset1/test_images`
+* `data/eye_dataset1/test.csv`
+* `data/eye_dataset1/train.csv`
+* `data/eye_dataset2/eyepacs_preprocess/eyepacs_preprocess/`
+* `data/eye_dataset2/trainLabels.csv`
 
 Once verify the path of the unzipped folders in the load data function of preprocess_eye_dataset_1.py and preprocess_eye_dataset_2.py files.
 
