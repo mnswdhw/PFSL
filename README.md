@@ -194,11 +194,11 @@ for both the datasets <br/>
 `python utils/preprocess_eye_dataset_1.py`  <br/>
 `python utils/preprocess_eye_dataset 2.py`
 
-* `python PFSL_DR.py --pretrained --model resnet18 -c 10 --batch_size 64 --test_batch_size 512 --epochs 100`
-* `python FL_DR.py -c 10 --batch_size 64--test_batch_size 512 --epochs 100`
-* `python SL_DR.py --batch_size 64 --test batch_size 512 --epochs 100`
-* `python SFLv1_DR.py --batch_size 64 --test_batch_size 512 --epochs 100`
-* `python SFLv2_DR.py --batch_size 64 --test_batch_size 512 --epochs 100`
+* `python PFSL_DR.py --pretrained --model resnet18 -c 10 --batch_size 64 --test_batch_size 512 --epochs 50`
+* `python FL_DR.py -c 10 --batch_size 64 --test_batch_size 512 --epochs 50`
+* `python SL_DR.py --batch_size 64 --test_batch_size 512 --epochs 50`
+* `python SFLv1_DR.py --batch_size 64 --test_batch_size 512 --epochs 50`
+* `python SFLv2_DR.py --batch_size 64 --test_batch_size 512 --epochs 50`
 </p>
 </details>
 
