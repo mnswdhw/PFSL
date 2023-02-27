@@ -147,7 +147,7 @@ class LocalUpdate(object):
         self.local_ep = 1
         self.loss_func = nn.CrossEntropyLoss()
         self.selected_clients = []
-        print("client_idx is : ", client_idx)
+       
         if(client_idx>=0 and client_idx<=4 ):
             train_data_id=1
             test_data_id=3
@@ -198,8 +198,7 @@ class LocalUpdate(object):
                 batch_acc.append(acc.item())
             
             
-            prRed('Client{} Train => Local Epoch: {}  \tAcc: {:.3f} \tLoss: {:.4f}'.format(self.idx,
-                        iter, acc.item(), loss.item()))
+            
             epoch_loss.append(sum(batch_loss)/len(batch_loss))
             epoch_acc.append(sum(batch_acc)/len(batch_acc))
         return net.state_dict(), sum(epoch_loss) / len(epoch_loss), sum(epoch_acc) / len(epoch_acc)
@@ -220,7 +219,7 @@ class LocalUpdate(object):
                 _,pred_t = torch.max(fx, dim=1)
                 outputs.extend(pred_t.cpu().detach().numpy().tolist())
                 targets.extend(labels.cpu().detach().numpy().tolist())
-                print(len(targets), " :: ",len(outputs))
+                
        
                 
                 # calculate loss
@@ -231,21 +230,18 @@ class LocalUpdate(object):
                 batch_loss.append(loss.item())
                 batch_acc.append(acc.item())
             
-            prGreen('Client{} Test =>                     \tLoss: {:.4f} \tAcc: {:.3f}'.format(self.idx, loss.item(), acc.item()))
+           
             epoch_loss.append(sum(batch_loss)/len(batch_loss))
             epoch_acc.append(sum(batch_acc)/len(batch_acc))
-            # print("hmlo", len(targets), " :: ",len(outputs))
-            clr=classification_report(np.array(targets), np.array(outputs), output_dict=True)
+         
+            clr=classification_report(np.array(targets), np.array(outputs), output_dict=True, zero_division=0)
             curr_f1=(clr['0']['f1-score']+clr['1']['f1-score']+clr['2']['f1-score'])/3
             macro_avg_f1_3classes.append(curr_f1)
             macro_avg_f1_dict[idx]=curr_f1
-            # macro_avg_f1_3classes.append((clr[str(idx)]['f1-score']+clr[str((idx+1)%10)]['f1-score'])/2)
-            # macro_avg_f1_3classes.append((clr['0']['f1-score']+clr['1']['f1-score']+clr['2']['f1-score'])/3)
-            if(ell==0 or ell==10):
-                print(classification_report(np.array(targets), np.array(outputs)))
+          
             targets=[]
             outputs=[]
-            print("checking length: ", len(epoch_loss))
+          
         return sum(epoch_loss) / len(epoch_loss), sum(epoch_acc) / len(epoch_acc)
 
 
@@ -259,19 +255,6 @@ def dataset_iid(dataset, num_users):
     num_items = int(len(dataset)/num_users)
     dict_users, all_idxs = {}, [i for i in range(len(dataset))]
     for i in range(num_users):
-        dict_users[i] = set(np.random.choice(all_idxs, num_items, replace = False))
-        all_idxs = list(set(all_idxs) - dict_users[i])
-    return dict_users    
-
-def dataset_iid_setting2(u_dataset, c_dataset, num_users):
-
-    # u_user_idx = 0
-    c_users = num_users - 1
-    print("Length of common dataset", c_dataset)
-    print("Length of unique dataset", u_dataset)
-    num_items = int(len(c_dataset)/c_users)
-    dict_users, all_idxs = {}, [i for i in range(len(c_dataset))]
-    for i in range(1, c_users):
         dict_users[i] = set(np.random.choice(all_idxs, num_items, replace = False))
         all_idxs = list(set(all_idxs) - dict_users[i])
     return dict_users    
@@ -337,37 +320,6 @@ def plot_class_distribution(clients,  client_ids):
     
     return class_distribution
 
-import matplotlib.pyplot as plt 
-from sklearn.preprocessing import LabelBinarizer
-from sklearn.metrics import roc_curve, auc, roc_auc_score
-
-
-
-# function for scoring roc auc score for multi-class
-
-def multiclass_roc_auc_score(y_test, y_pred, epoch, average="macro"):
-    
-    target= ['airplane', 'automobile', 'bird', 'cat', 'deer',
-              'dog', 'frog', 'horse', 'ship', 'truck']
-
-    # set plot figure size
-    fig, c_ax = plt.subplots(1,1, figsize = (12, 8))
-    lb = LabelBinarizer()
-    lb.fit(y_test)
-    y_test = lb.transform(y_test)
-    y_pred = lb.transform(y_pred)
-
-    for (idx, c_label) in enumerate(target):
-        fpr, tpr, thresholds = roc_curve(y_test[:,idx].astype(int), y_pred[:,idx])
-        c_ax.plot(fpr, tpr, label = '%s (AUC:%0.2f)'  % (c_label, auc(fpr, tpr)))
-    c_ax.plot(fpr, fpr, 'b-', label = 'Random Guessing')
-    c_ax.legend()
-    c_ax.set_xlabel('False Positive Rate')
-    c_ax.set_ylabel('True Positive Rate')
-    plt.show()
-    plt.savefig(f'curve_fl_epoch_{epoch}')
-    # print(classification_report(pred_t, target_t))
-    return roc_auc_score(y_test, y_pred, average=average)
 
 class BasicBlock(nn.Module):
     expansion = 1
@@ -488,16 +440,6 @@ if __name__ == "__main__":
     lr = args.lr
     dataset = args.dataset
 
-    # if args.dataset == "mnist" or args.dataset == "fmnist":
-    #     input_channels = 1
-    # else:
-    #     input_channels = 3
-
-    # if args.dataset == "ham10k":
-    #     no_classes = 7
-    # else:
-    #     no_classes = 10
-
     input_channels=3
     no_classes=3
 
@@ -508,54 +450,22 @@ if __name__ == "__main__":
     global outputs, targets
     targets=[]
     outputs=[]
-    mycount=0
+    max_accuracy=0
+    max_train_accuracy=0
+    max_c0_4_test=0
+    max_c0_f1=0
+    max_c5_9_test=0
+    max_c5_f1=0
     global clients
     clients={}
 
-
-
-
-    # To print in color during test/train 
-    def prRed(skk): print("\033[91m {}\033[00m" .format(skk)) 
-    def prGreen(skk): print("\033[92m {}\033[00m" .format(skk))    
-
-
-    # transform_train = transforms.Compose([
-    #     transforms.RandomCrop(32, padding=4),
-    #     transforms.RandomHorizontalFlip(),
-    #     transforms.ToTensor(),
-    #     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-    # ])
-
-    # transform_test = transforms.Compose([
-    #     transforms.RandomCrop(32, padding=4),
-    #     transforms.ToTensor(),
-    #     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-    # ])
-
-    # if dataset == "cifar10_setting2":
-    #     u_train_dataset,c_train_full_dataset, test_full_dataset, input_channels = datasets.load_full_dataset(dataset, "data", num_users, args.datapoints, transform_train, transform_test)
-    #     dict_users = dataset_iid_setting2(u_train_dataset, c_train_full_dataset, num_users)
-    # else:
-    #     train_full_dataset, test_full_dataset, input_channels = datasets.load_full_dataset(dataset, "data", num_users, args.datapoints, transform_train, transform_test)
-    #     dict_users = dataset_iid(train_full_dataset, num_users)
-    # #-----------------------------------------------
-
-  
     
-    # dict_users_test = dataset_iid(test_full_dataset, num_users)  #not needed when testing on the entire test dataset 
-    # train_full_dataset, test_full_dataset, input_channels = datasets.load_full_dataset(dataset, "data", num_users, args.datapoints)
-
-    #----------------------------------------------------------------
-    # dict_users , dict_users_test = dataset_settings.get_dicts(train_full_dataset, test_full_dataset, num_users, args.setting, args.datapoints)
     d1, d2=get_eye_dataset.get_idxs()
     dict_users, dict_users_test=d1, d2
-    
-
 
     net_glob = ResNet18(BasicBlock, [2, 2, 2, 2],input_channels, no_classes) 
     net_glob.to(device)
-    print(net_glob)   
+    
 
     net_glob.train()
     w_glob = net_glob.state_dict()
@@ -577,10 +487,7 @@ if __name__ == "__main__":
         
         # Training/Testing simulation
         for idx in idxs_users: # each client
-            # if idx == 0:
-            #     #unique client with 500 datapoints
-            #     local = LocalUpdate(idx, lr, device, dataset_train = u_train_dataset, dataset_test = test_full_dataset, idxs = None, idxs_test = None)
-
+           
             local = LocalUpdate(idx, lr, device, client_idx=idx, idxs = dict_users[idx], idxs_test = dict_users_test[idx])
             # Training ------------------
             w, loss_train, acc_train = local.train(net = copy.deepcopy(net_glob).to(device))
@@ -595,17 +502,10 @@ if __name__ == "__main__":
                 acc_locals_test1.append(copy.deepcopy(acc_test))
             elif(idx>=5 and idx<10):
                 acc_locals_test2.append(copy.deepcopy(acc_test))
-            
-        # if iter==0:
-        #     client_ids=[0,1,2,3,4,5,6,7,8,9]
-        #     plot_class_distribution(clients, client_ids) 
         
         # Federation process
         w_glob = FedAvg(w_locals)
-        print("------------------------------------------------")
-        print("------ Federation process at Server-Side -------")
-        print("------------------------------------------------")
-        
+       
         # update global model --- copy weight to net_glob -- distributed the model to all users
         net_glob.load_state_dict(w_glob)
         
@@ -627,21 +527,37 @@ if __name__ == "__main__":
         loss_test_collect.append(loss_avg_test)
         
         
-        print('------------------- SERVER ----------------------------------------------')
-        print('Train: Round {:3d}, Avg Accuracy {:.3f} | Avg Loss {:.3f}'.format(iter, acc_avg_train, loss_avg_train))
-        print('Test:  Round {:3d}, Avg Accuracy {:.3f} | Avg Loss {:.3f} | F1 Score {:.3f}'.format(iter, acc_avg_test, loss_avg_test, f1_avg_all_user))
-        print('-------------------------------------------------------------------------')
+        # print('------------------- SERVER ----------------------------------------------')
+        # print('Train: Round {:3d}, Avg Accuracy {:.3f} | Avg Loss {:.3f}'.format(iter, acc_avg_train, loss_avg_train))
+        # print('Test:  Round {:3d}, Avg Accuracy {:.3f} | Avg Loss {:.3f} | F1 Score {:.3f}'.format(iter, acc_avg_test, loss_avg_test, f1_avg_all_user))
+        # print('-------------------------------------------------------------------------')
+        print(f'\rEpoch: {iter}', end='')
      
-        print(macro_avg_f1_dict)
+        
+        if(acc_avg_test> max_accuracy):
+            max_accuracy=acc_avg_test
+            max_train_accuracy=acc_avg_train
+            max_epoch=iter
+            max_c0_f1=macro_avg_f1_dict[0]
+            max_c5_f1=macro_avg_f1_dict[5]
+            max_c0_4_test=acc_avg_test1
+            max_c5_9_test=acc_avg_test2
  
         macro_avg_f1_dict={}
     
 
     #===================================================================================     
 
-    print("Training and Evaluation completed!")    
+       
     et = time.time()
-    print(f"Total time taken is {(et-st)/60} mins")
+    print("\nTraining and Evaluation completed!")  
+    print(f"Time taken for this run {(et - st)/60} mins")
+    print(f'Maximum Personalized Average Test Acc: {max_accuracy}  ')
+    print(f'Maximum Personalized Average Train Acc: {max_train_accuracy}  ')
+    print(f'Client0 F1 Scores: {max_c0_f1}')
+    print(f'Client5 F1 Scores:{max_c5_f1}')
+    print(f'Personalized Average Test Accuracy for Clients 0 to 4 ": {max_c0_4_test}')
+    print(f'Personalized Average Test Accuracy for Clients 5 to 9": {max_c5_9_test}')  
     #===============================================================================
     # Save output data to .excel file (we use for comparision plots)
     round_process = [i for i in range(1, len(acc_train_collect)+1)]

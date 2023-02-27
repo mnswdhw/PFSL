@@ -431,13 +431,12 @@ def evaluate_server(fx_client, y, idx, len_batch, ell):
             if l_epoch_check:
                 l_epoch_check = False
                 
-                clr=classification_report(np.array(targets), np.array(outputs), output_dict=True)
+                clr=classification_report(np.array(targets), np.array(outputs), output_dict=True, zero_division=0)
                 # macro_avg_f1_3classes.append((clr[str(idx)]['f1-score']+clr[str((idx+1)%10)]['f1-score'])/2)
                 curr_f1=(clr[str(idx)]['f1-score']+clr[str((idx+1)%10)]['f1-score'])/2
                 macro_avg_f1_3classes.append(curr_f1)
                 macro_avg_f1_dict[idx]=curr_f1
-                if(ell==0):
-                    print(classification_report(np.array(targets), np.array(outputs)))
+                
                 targets=[]
                 outputs=[]
                 # Store the last accuracy and loss
@@ -475,7 +474,7 @@ def evaluate_server(fx_client, y, idx, len_batch, ell):
                         max_f1=f1_avg_all_user
                         max_epoch=ell
 
-                    print("MAX F1: ", max_f1, "MAX EPOCh: ", max_epoch)
+                    
                 else:
                     if(acc_avg_all_user> max_accuracy):
                         max_accuracy=acc_avg_all_user
@@ -718,9 +717,12 @@ if __name__ == "__main__":
     et = time.time()
     print(f"Time taken is {(et-st)/60} mins")
     print("Training and Evaluation completed!")    
+    if(args.setting=='setting2'):
+        print("Maximum F1 Score: ", max_f1)
+    else:
+        print("Maximum Test Accuracy: ", max_accuracy)
 
-    # print("Max test accuracy of unique client is: ", max(unique_test))
-    print("Maximum Average Test Accuracy: ", max(acc_test_collect))
+    
 
     #===============================================================================
     # Save output data to .excel file (we use for comparision plots)
@@ -733,7 +735,7 @@ if __name__ == "__main__":
     # Save output data to .excel file (we use for comparision plots)
     round_process = [i for i in range(1, len(acc_train_collect)+1)]
     df = DataFrame({'round': round_process,'acc_train':acc_train_collect, 'acc_test':acc_test_collect})     
-    file_name = f"results/SFLv2/{program}_{args.batch_size}_{args.dataset}_{args.lr}_{args.epochs}_setting2"+".xlsx"    
+    file_name = f"results/SFLv1/{program}_{args.batch_size}_{args.dataset}_{args.lr}_{args.epochs}_setting2"+".xlsx"    
     df.to_excel(file_name, sheet_name= "v1_test", index = False)     
 
 
