@@ -568,7 +568,7 @@ if __name__ == "__main__":
     if(args.setting=='setting2'):
         print("Max F1 Score: ", max_f1)
     else:
-        print("Max test accuracy of unique client is: ", max_accuracy)
+        print("Maximum Test Accuracy: ", max_accuracy)
     #===============================================================================
     # Save output data to .excel file (we use for comparision plots)
 
