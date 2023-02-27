@@ -608,12 +608,12 @@ if __name__ == "__main__":
 
     net_glob_client = ResNet18_client_side(input_channels)
     net_glob_client.to(device)
-    print(net_glob_client)     
+    # print(net_glob_client)     
 
 
     net_glob_server = ResNet18_server_side(Baseblock, [2,2,2], no_classes) 
     net_glob_server.to(device)
-    print(net_glob_server)      
+    # print(net_glob_server)      
 
     #===================================================================================
     # For Server Side Loss and Accuracy 

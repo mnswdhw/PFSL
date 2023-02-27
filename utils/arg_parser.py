@@ -48,6 +48,12 @@ def parse_arguments():
         help="Learning rate",
     )
     
+    parser.add_argument(
+        "--rate",
+        type=float,
+        default=0.5,
+        help="dropoff rate",
+    )
     
     parser.add_argument(
         "--dataset",

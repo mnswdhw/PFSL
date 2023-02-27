@@ -89,7 +89,7 @@ def setting1(dataset, num_users, datapoints):
 def get_test_dict(dataset, num_users):
     
     dict_users, all_idxs = {}, [i for i in range(len(dataset))]
-    val = len(dataset)//num_users
+    val = int(len(dataset)//num_users)
     for i in range(num_users):
         dict_users[i] = set(np.random.choice(all_idxs, val, replace=False))
     return dict_users            

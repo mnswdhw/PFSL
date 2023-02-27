@@ -252,6 +252,7 @@ if __name__ == "__main__":
 
     
     args = parse_arguments()
+    print(args)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Arguments provided", args)
 
@@ -301,9 +302,9 @@ if __name__ == "__main__":
     #number of iterations will be (di)/b.
     num_iterations = ceil(50 // args.batch_size)
     num_test_iterations = ceil(len(sample_client.test_DataLoader.dataset)//args.test_batch_size)
-    print(num_iterations)
-    print(num_test_iterations)
-    print("ABove this ")
+    # print(num_iterations)
+    # print(num_test_iterations)
+
 
     #define train iterators for all clients 
     for _,client in clients.items():
@@ -359,7 +360,7 @@ if __name__ == "__main__":
 
         num_clients = len(client_ids)
         drop_clients_ids = []
-        rate = 0.3
+        rate = args.rate
         num_dropoff = int(rate * num_clients)
         print("number of clients dropped off", num_dropoff)
 
