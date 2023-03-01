@@ -90,8 +90,11 @@ def get_test_dict(dataset, num_users):
     
     dict_users, all_idxs = {}, [i for i in range(len(dataset))]
     val = int(len(dataset)//num_users)
+    #giving the same test set to all the clients 
+    test_set = set(np.random.choice(all_idxs, 2000, replace=False))
+
     for i in range(num_users):
-        dict_users[i] = set(np.random.choice(all_idxs, val, replace=False))
+        dict_users[i] = test_set
     return dict_users            
 
 
