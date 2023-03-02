@@ -194,13 +194,98 @@ for both the datasets <br/>
 `python utils/preprocess_eye_dataset_1.py`  <br/>
 `python utils/preprocess_eye_dataset 2.py`
 
-* `python PFSL_DR.py --pretrained --model resnet18 -c 10 --batch_size 64 --test_batch_size 512 --epochs 50`
+* `python PFSL_DR.py --pretrained --model resnet18 -cpython PFSL_Setting124.py --dataset cifar10 --setting setting1 --datapoints 150 --pretrained --model resnet18 -c 10 --batch_size 64 --test_batch_size 512 --epochs 100 10 --batch_size 64 --test_batch_size 512 --epochs 50`
 * `python FL_DR.py -c 10 --batch_size 64 --test_batch_size 512 --epochs 50`
 * `python SL_DR.py --batch_size 64 --test_batch_size 512 --epochs 50`
 * `python SFLv1_DR.py --batch_size 64 --test_batch_size 512 --epochs 50`
 * `python SFLv2_DR.py --batch_size 64 --test_batch_size 512 --epochs 50`
 </p>
 </details>
+
+
+## (6) Test Example Outputs for different Settings
+
+### Setting 1
+
+Command: `python PFSL_Setting124.py --dataset cifar10 --setting setting1 --datapoints 150 --pretrained --model resnet18 -c 10 --batch_size 64 --test_batch_size 512 --epochs 100`
+
+Final Output <br/>
+aaa
+
+### Setting 2
+
+Command: `python PFSL_Setting124.py --dataset cifar10 --setting setting1 --datapoints 150 --pretrained --model resnet18 -c 10 --batch_size 64 --test_batch_size 512 --epochs 100`
+
+Final Output <br/>
+aaa
+
+
+### Setting 3
+
+Command: `python PFSL_Setting3.py --datapoints 2000 --dataset cifar10 --pretrained --model resnet18 -c 11 --epochs 50`
+<br/>
+
+This command will print statements of the form as below every epoch<br/>
+* Large client train/Test accuracy xx.xx
+* Epoch 19 C1-C10 Average Train/Test Acc: xx.xx
+
+Final Output will be the maximum test accuracy of the large client and the maximum average test accuracy of the remaining clients which for the above command is <br/>
+* Average C1 - C10 test accuracy:  86.1162109375
+* Large Client test Accuracy:  87.109375
+* Time taken for this run 7.857871949672699 mins
+
+
+### Setting 4
+
+Command: `python PFSL_Setting3.py --datapoints 2000 --dataset cifar10 --pretrained --model resnet18 -c 11 --epochs 50`
+<br/>
+
+Final Output of the above command is as follows <br/>
+* Epoch: 20, Iteration: 79/79
+* Training Accuracy:  98.90427215189872
+* Maximum Test Accuracy:  94.1484375
+* Time taken for this run 36.06000682512919 mins
+
+### Setting 5
+
+Command: `python system_simulation_e2.py -c 10 --batch_size 16 --dataset cifar10 --model resnet18 --pretrained --epochs 40 --rate 0.3`
+
+For every epoch it prints the average train accuracy and the number of clients that are dropped off. Next, it prints the ids of the clients that are not dropped off. 
+
+
+Final Output of the above command is as follows <br/>
+* Personalized Average Test Acc: 88.19791666666666
+* Time taken for this run 18.778587651252746 mins 
+
+
+
+
+### Setting 6
+
+Command: `python PFSL_Setting124.py --dataset cifar10 --setting setting1 --datapoints 150 --pretrained --model resnet18 -c 10 --batch_size 64 --test_batch_size 512 --epochs 100`
+
+Final Output <br/>
+
+
+
+
+## (7) Quick Validation of Environment 
+
+Command: `python PFSL_Setting124.py --dataset cifar10 --setting setting1 --datapoints 50 --pretrained --model resnet18 -c 5 --batch_size 64 --test_batch_size 512 --epochs 2`
+
+Output <br/>
+
+* Training Accuracy:  82.0
+* Maximum Test Accuracy:  57.88355334051723
+* Time taken for this run 0.4888111670811971 mins 
+
+
+
+
+
+
+
+
 
 
 
