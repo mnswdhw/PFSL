@@ -180,7 +180,7 @@ For this create directories using the command:
   
   
 The directory structure of data is as follows:
-* ` data/eye_dataset1/train_images`
+* `data/eye_dataset1/train_images`
 * `data/eye_dataset1/test_images`
 * `data/eye_dataset1/test.csv`
 * `data/eye_dataset1/train.csv`
@@ -194,7 +194,7 @@ for both the datasets <br/>
 `python utils/preprocess_eye_dataset_1.py`  <br/>
 `python utils/preprocess_eye_dataset 2.py`
 
-* `python PFSL_DR.py --pretrained --model resnet18 -cpython PFSL_Setting124.py --dataset cifar10 --setting setting1 --datapoints 150 --pretrained --model resnet18 -c 10 --batch_size 64 --test_batch_size 512 --epochs 100 10 --batch_size 64 --test_batch_size 512 --epochs 50`
+* `python PFSL_DR.py --pretrained --model resnet18 -c 10 --batch_size 64 --test_batch_size 512 --epochs 50`
 * `python FL_DR.py -c 10 --batch_size 64 --test_batch_size 512 --epochs 50`
 * `python SL_DR.py --batch_size 64 --test_batch_size 512 --epochs 50`
 * `python SFLv1_DR.py --batch_size 64 --test_batch_size 512 --epochs 50`
@@ -209,15 +209,28 @@ for both the datasets <br/>
 
 Command: `python PFSL_Setting124.py --dataset cifar10 --setting setting1 --datapoints 150 --pretrained --model resnet18 -c 10 --batch_size 64 --test_batch_size 512 --epochs 100`
 
-Final Output <br/>
-aaa
+Maximum test accuracy and time taken for the run is noted in this setting. 
+
+Final Output of the above command is as follows: . <br/>
+* Epoch: 100, Iteration: 3/3
+* Training Accuracy:  100.0
+* Maximum Test Accuracy:  82.52188846982759
+* Time taken for this run 49.36871874332428 mins
 
 ### Setting 2
 
-Command: `python PFSL_Setting124.py --dataset cifar10 --setting setting1 --datapoints 150 --pretrained --model resnet18 -c 10 --batch_size 64 --test_batch_size 512 --epochs 100`
+Command: `python PFSL_Setting124.py --dataset cifar10 --model resnet18 --pretrained --setting setting2 --batch_size 64 --test_batch_size 512 --checkpoint 25 --epochs 30`
+
+After the 25th layer, personalization phase begins since checkpoint is specified as 25 in the above command. It outputs F1 Score just before the start of the personalization phase and the maximum F1 Score achieved in that phase. 
 
 Final Output <br/>
-aaa
+* Epoch: 25, Iteration: 8/8freezing the center model
+* Epoch: 26, Iteration: 8/8freezing the center model
+* F1 Score at epoch  25  :  0.8151361976947273
+* Epoch: 30, Iteration: 8/8
+* Training Accuracy:  100.0
+* Maximum F1 Score:  0.9509444261471961
+* Time taken for this run 11.245620834827424 mins
 
 
 ### Setting 3
@@ -237,7 +250,7 @@ Final Output will be the maximum test accuracy of the large client and the maxim
 
 ### Setting 4
 
-Command: `python PFSL_Setting3.py --datapoints 2000 --dataset cifar10 --pretrained --model resnet18 -c 11 --epochs 50`
+Command: `python PFSL_Setting124.py --dataset cifar10 --setting setting4 --pretrained --model resnet18 -c 5 --epochs 20`
 <br/>
 
 Final Output of the above command is as follows <br/>
@@ -262,9 +275,20 @@ Final Output of the above command is as follows <br/>
 
 ### Setting 6
 
-Command: `python PFSL_Setting124.py --dataset cifar10 --setting setting1 --datapoints 150 --pretrained --model resnet18 -c 10 --batch_size 64 --test_batch_size 512 --epochs 100`
+Command: `python PFSL_DR.py --pretrained --model resnet18 -c 10 --batch_size 64 --test_batch_size 512 --epochs 50`
+
+Average test accuracy for clients having the APTOS dataset and clients having the EyePACS dataset is noted separately. Also, F1 Score for one representative client from each group is noted. The command above outputs these metrics for the epoch in which the maximum average test accuracy of all the clients is achieved. 
 
 Final Output <br/>
+* Epoch: 50, Iteration: 8/8
+* Time taken for this run 75.75171089967093 mins
+* Time taken for this run 75.75171089967093 mins
+* Maximum Personalized Average Test Acc: 79.24868724385246  
+* Maximum Personalized Average Train Acc: 97.85606971153845  
+* Client0 F1 Scores: 0.772644561137067
+* Client5 F1 Scores:0.5906352306590767
+* Personalized Average Test Accuracy for Clients 0 to 4 ": 85.21932633196721
+* Personalized Average Test Accuracy for Clients 5 to 9": 73.27804815573771
 
 
 
