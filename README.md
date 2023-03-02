@@ -211,7 +211,7 @@ Command: `python PFSL_Setting124.py --dataset cifar10 --setting setting1 --datap
 
 Maximum test accuracy and time taken for the run is noted in this setting. 
 
-Final Output of the above command is as follows: . <br/>
+Final Output of the above command is as follows: <br/>
 * Epoch: 100, Iteration: 3/3
 * Training Accuracy:  100.0
 * Maximum Test Accuracy:  82.52188846982759
@@ -223,7 +223,7 @@ Command: `python PFSL_Setting124.py --dataset cifar10 --model resnet18 --pretrai
 
 After the 25th layer, personalization phase begins since checkpoint is specified as 25 in the above command. It outputs F1 Score just before the start of the personalization phase and the maximum F1 Score achieved in that phase. 
 
-Final Output <br/>
+Final Output: <br/>
 * Epoch: 25, Iteration: 8/8freezing the center model
 * Epoch: 26, Iteration: 8/8freezing the center model
 * F1 Score at epoch  25  :  0.8151361976947273
@@ -279,7 +279,7 @@ Command: `python PFSL_DR.py --pretrained --model resnet18 -c 10 --batch_size 64 
 
 Average test accuracy for clients having the APTOS dataset and clients having the EyePACS dataset is noted separately. Also, F1 Score for one representative client from each group is noted. The command above outputs these metrics for the epoch in which the maximum average test accuracy of all the clients is achieved. 
 
-Final Output <br/>
+Final Output: <br/>
 * Epoch: 50, Iteration: 8/8
 * Time taken for this run 75.75171089967093 mins
 * Time taken for this run 75.75171089967093 mins
