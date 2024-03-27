@@ -1,4 +1,4 @@
-# PFSL
+# PFSL: Personalized & Fair Split Learning with Data & Label Privacy for thin clients
 
 ## 1) Please cite as below if you use this repository:
 `@software{Manas_Wadhwa_and_Gagan_Gupta_and_Ashutosh_Sahu_and_Rahul_Saini_and_Vidhi_Mittal_PFSL_2023,
